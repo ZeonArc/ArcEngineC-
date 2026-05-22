@@ -1,0 +1,13 @@
+# MTL for crate.obj.
+# Diffuse texture is reused from Assets/Textures/test.png to avoid duplicating asset bytes.
+# Specular map reuses the same image — visually demonstrates the spec pipeline (bright
+# parts of the texture get stronger highlights). Path is resolved relative to this .mtl.
+
+newmtl crate
+Ka 0.2 0.2 0.2
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ns 64.0
+d  1.0
+map_Kd ../Textures/test.png
+map_Ks ../Textures/test.png
