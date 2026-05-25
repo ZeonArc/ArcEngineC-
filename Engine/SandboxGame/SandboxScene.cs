@@ -1,114 +1,110 @@
 ﻿using OpenTK.Mathematics;
 
 using ArcEngine.Engine.Core;
+using ArcEngine.Engine.Input;
 using ArcEngine.Engine.Lighting;
-using ArcEngine.Engine.Loaders;
+using ArcEngine.Engine.Physics;
 using ArcEngine.Engine.Rendering;
+using ArcEngine.Engine.SandboxGame.Scripts;
 
 namespace ArcEngine.Engine.SandboxGame;
 
 /// <summary>
-/// Phase-5a demo scene: textured OBJ crate + GLB sample sit on a tiled ground plane,
-/// lit by a directional "sun" plus two colored point lights orbiting around them.
-/// Acts as the integration test across loaders, lighting, materials, and Mesh/Material/
-/// Transform-hierarchy pipeline.
+/// Phase-9a demo scene: textured OBJ crate falls under gravity onto a static ground
+/// plane, while the GLB sample stays as visual only. Lit by a directional sun (with
+/// shadows) plus two orbiting colored point lights. FPS camera navigation.
 /// </summary>
 public class SandboxScene
 {
-    private GameObject? _crate;
-    private GameObject? _glb;
-    private GameObject? _ground;
-
-    private PointLight? _orbitLightA;
-    private PointLight? _orbitLightB;
-    private float _orbitTime;
-
-    /// <summary>Lighting used to render this scene. Populated in <see cref="Build"/>.</summary>
-    public LightSet Lights { get; } = new();
-
-    /// <summary>
-    /// Loads both demo models, builds the ground plane, configures lighting,
-    /// and adds everything to the scene.
-    /// </summary>
-    public void Build(Scene scene, Shader sharedShader)
+    public void Build(Scene scene, Shader sharedShader, InputManager input)
     {
-        // 1) OBJ + MTL pipeline: textured crate from our hand-written parser.
-        var crateData = ObjLoader.Load("Assets/Models/crate.obj");
-        _crate = ModelBuilder.Build(crateData, sharedShader);
-        _crate.Transform.Position = new Vector3(-1.5f, 0f, 0f);
-        _crate.Name = "Crate (OBJ+MTL)";
-        scene.Add(_crate);
+        scene.Ambient = new Vector3(0.08f);
 
-        // 2) GLTF/GLB pipeline: SharpGLTF-backed loader.
-        var glbData = GltfLoader.Load("Assets/Models/sample.glb");
-        _glb = ModelBuilder.Build(glbData, sharedShader);
-        _glb.Transform.Position = new Vector3(1.5f, 0f, 0f);
-        _glb.Name = "Sample (GLB)";
-        scene.Add(_glb);
+        // ---- PhysicsWorld first so it Awakes before any Rigidbody ------------------
+        var physicsGo = new GameObject { Name = "Physics" };
+        physicsGo.AddComponent<PhysicsWorld>();
+        scene.Add(physicsGo);
 
-        // 3) Ground plane: 20×20 with 4×4 UV tiling (texture-less but the material's
-        //    diffuse color + Blinn-Phong spec respond visibly to the lights).
-        _ground = new GameObject
+        // ---- Models ----------------------------------------------------------------
+        // OBJ + MTL pipeline; dropped from height with physics.
+        var crateData = ArcEngine.Engine.Resources.Resources.LoadModelData("Assets/Models/crate.obj");
+        var crate = ArcEngine.Engine.Loaders.ModelBuilder.Build(crateData, sharedShader);
+        crate.Transform.Position = new Vector3(-1.5f, 4f, 0f);
+        crate.Name = "Crate (OBJ+MTL)";
+
+        var crateCollider = crate.AddComponent<BoxCollider>();
+        crateCollider.Size = new Vector3(1f, 1f, 1f);
+
+        var crateRb = crate.AddComponent<Rigidbody>();
+        crateRb.Mass = 1f;
+        crateRb.IsStatic = false;
+
+        scene.Add(crate);
+
+        // GLTF/GLB pipeline — visual-only, kept as a spinner for contrast.
+        var glbData = ArcEngine.Engine.Resources.Resources.LoadModelData("Assets/Models/sample.glb");
+        var glb = ArcEngine.Engine.Loaders.ModelBuilder.Build(glbData, sharedShader);
+        glb.Transform.Position = new Vector3(1.5f, 0f, 0f);
+        glb.Name = "Sample (GLB)";
+        var glbSpinner = glb.AddComponent<ModelSpinner>();
+        glbSpinner.RotationDegPerSec = new Vector3(0f, -30f, 0f);
+        scene.Add(glb);
+
+        // ---- Ground (visual mesh) -------------------------------------------------
+        // Plane mesh rendered at y = -1.
+        var ground = new GameObject { Name = "Ground (visual)" };
+        var groundMr = ground.AddComponent<MeshRenderer>();
+        groundMr.Mesh = Primitives.CreatePlane(20f, 4f);
+        groundMr.Material = new Material(sharedShader)
         {
-            Name = "Ground",
-            Mesh = Primitives.CreatePlane(20f, 4f),
-            Material = new Material(sharedShader)
-            {
-                Color = new Vector3(0.45f, 0.45f, 0.5f),
-                Shininess = 8f,
-            },
+            Color = new Vector3(0.45f, 0.45f, 0.5f),
+            Shininess = 8f,
         };
-        _ground.Transform.Position = new Vector3(0f, -1f, 0f);
-        scene.Add(_ground);
+        ground.Transform.Position = new Vector3(0f, -1f, 0f);
+        scene.Add(ground);
 
-        // 4) Lighting setup.
-        Lights.Ambient = new Vector3(0.08f);
+        // ---- Ground (physics body) -------------------------------------------------
+        // A separate static body whose top surface aligns with the visual plane at y=-1.
+        // Box of size 20 × 0.2 × 20 centered at (0, -1.1, 0): top = -1.0, bottom = -1.2.
+        var groundCollider = new GameObject { Name = "Ground (collider)" };
+        groundCollider.Transform.Position = new Vector3(0f, -1.1f, 0f);
+        var gc = groundCollider.AddComponent<BoxCollider>();
+        gc.Size = new Vector3(20f, 0.2f, 20f);
+        var grb = groundCollider.AddComponent<Rigidbody>();
+        grb.IsStatic = true;
+        scene.Add(groundCollider);
 
-        Lights.Sun = new DirectionalLight
-        {
-            Direction = Vector3.Normalize(new Vector3(-0.4f, -1f, -0.3f)),
-            Color = new Vector3(1.0f, 0.96f, 0.9f),
-            Intensity = 0.7f,
-        };
+        // ---- Camera ----------------------------------------------------------------
+        var cameraGo = new GameObject { Name = "Main Camera" };
+        cameraGo.Transform.Position = new Vector3(0f, 1f, 6f);
+        cameraGo.AddComponent<Camera>();
+        var controller = cameraGo.AddComponent<FpsCameraController>();
+        controller.Input = input;
+        scene.Add(cameraGo);
 
-        // Two orbiting point lights — warm orange and cool blue.
-        // Stored as fields so Update() can move them each frame.
-        _orbitLightA = new PointLight
-        {
-            Color = new Vector3(1.0f, 0.6f, 0.3f),
-            Intensity = 1.5f,
-        };
-        _orbitLightB = new PointLight
-        {
-            Color = new Vector3(0.3f, 0.6f, 1.0f),
-            Intensity = 1.5f,
-        };
-        Lights.Points.Add(_orbitLightA);
-        Lights.Points.Add(_orbitLightB);
-    }
+        // ---- Lights ----------------------------------------------------------------
+        var sunGo = new GameObject { Name = "Sun" };
+        var sun = sunGo.AddComponent<DirectionalLight>();
+        sun.Direction = Vector3.Normalize(new Vector3(-0.4f, -1f, -0.3f));
+        sun.Color = new Vector3(1.0f, 0.96f, 0.9f);
+        sun.Intensity = 0.7f;
+        sun.CastsShadows = true;
+        scene.Add(sunGo);
 
-    /// <summary>Per-frame update: spin both demo models and orbit the two point lights.</summary>
-    public void Update(float deltaTime)
-    {
-        if (_crate != null) _crate.Transform.Rotation.Y += 30f * deltaTime;
-        if (_glb   != null) _glb.Transform.Rotation.Y   -= 30f * deltaTime;
+        var lightAgo = new GameObject { Name = "OrbitLight A (warm)" };
+        var lightA = lightAgo.AddComponent<PointLight>();
+        lightA.Color = new Vector3(1.0f, 0.6f, 0.3f);
+        lightA.Intensity = 1.5f;
+        var orbitA = lightAgo.AddComponent<OrbitLight>();
+        orbitA.PhaseOffset = 0f;
+        scene.Add(lightAgo);
 
-        // Orbit both point lights at radius 2.5 around the origin, half a turn apart,
-        // floating slightly above the floor.
-        _orbitTime += deltaTime;
-        const float radius = 2.5f;
-        const float speed = 1.0f; // radians per second
-        const float height = 0.6f;
-
-        if (_orbitLightA != null)
-        {
-            float a = _orbitTime * speed;
-            _orbitLightA.Position = new Vector3(MathF.Cos(a) * radius, height, MathF.Sin(a) * radius);
-        }
-        if (_orbitLightB != null)
-        {
-            float a = _orbitTime * speed + MathF.PI;
-            _orbitLightB.Position = new Vector3(MathF.Cos(a) * radius, height, MathF.Sin(a) * radius);
-        }
+        var lightBgo = new GameObject { Name = "OrbitLight B (cool)" };
+        var lightB = lightBgo.AddComponent<PointLight>();
+        lightB.Color = new Vector3(0.3f, 0.6f, 1.0f);
+        lightB.Intensity = 1.5f;
+        var orbitB = lightBgo.AddComponent<OrbitLight>();
+        orbitB.PhaseOffset = MathF.PI;
+        scene.Add(lightBgo);
     }
 }

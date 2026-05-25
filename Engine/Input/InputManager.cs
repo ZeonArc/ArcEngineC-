@@ -22,6 +22,9 @@ public class InputManager
     private Vector2 _mouseDelta;
     private bool _firstMove = true;
 
+    private readonly HashSet<Keys> _downLastFrame = new();
+    private readonly HashSet<Keys> _downThisFrame = new();
+
     /// <summary>Mouse movement (in pixels) since the previous Update call. Zero on the first frame.</summary>
     public Vector2 MouseDelta => _mouseDelta;
 
@@ -44,11 +47,29 @@ public class InputManager
             _mouseDelta = mouse.Position - _lastMousePos;
             _lastMousePos = mouse.Position;
         }
+
+        // Maintain edge-detection sets. Cheap because the set of keys we care about is small.
+        _downLastFrame.Clear();
+        foreach (var k in _downThisFrame) _downLastFrame.Add(k);
+        _downThisFrame.Clear();
     }
 
     public bool IsKeyDown(Keys key)
     {
-        return _keyboard != null && _keyboard.IsKeyDown(key);
+        if (_keyboard == null) return false;
+        bool down = _keyboard.IsKeyDown(key);
+        if (down) _downThisFrame.Add(key);
+        return down;
+    }
+
+    /// <summary>True only on the frame the key transitions from up to down.</summary>
+    public bool WasKeyPressedThisFrame(Keys key)
+    {
+        // Force the "this frame" set to include this key if it's down (in case caller
+        // never queried IsKeyDown for it).
+        bool downNow = _keyboard != null && _keyboard.IsKeyDown(key);
+        if (downNow) _downThisFrame.Add(key);
+        return downNow && !_downLastFrame.Contains(key);
     }
 
     /// <summary>Convenience: grab the cursor for FPS-style mouse-look.</summary>

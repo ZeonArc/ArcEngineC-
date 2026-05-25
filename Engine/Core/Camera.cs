@@ -1,68 +1,53 @@
 ﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-
-using ArcEngine.Engine.Input;
 
 namespace ArcEngine.Engine.Core;
 
-public class Camera
+/// <summary>
+/// Perspective camera component. Pure view/projection math + yaw/pitch state.
+/// Position is sourced from the sibling <see cref="Transform"/>; movement and mouse-look
+/// live in a controller component (see <c>FpsCameraController</c>).
+/// </summary>
+public class Camera : Component
 {
-    public Vector3 Position = new Vector3(0, 0, 3);
+    public float Yaw = -90f;
+    public float Pitch = 0f;
 
-    private float _yaw = -90f;
-    private float _pitch = 0f;
+    public float Fov = 60f;
+    public float NearClip = 0.1f;
+    public float FarClip = 100f;
 
-    private Vector3 _front = -Vector3.UnitZ;
-    private Vector3 _up = Vector3.UnitY;
-    private Vector3 _right = Vector3.UnitX;
+    /// <summary>Forward (look) direction in world space, derived from <see cref="Yaw"/> / <see cref="Pitch"/>.</summary>
+    public Vector3 Front
+    {
+        get
+        {
+            float yawRad = MathHelper.DegreesToRadians(Yaw);
+            float pitchRad = MathHelper.DegreesToRadians(Pitch);
+            return Vector3.Normalize(new Vector3(
+                MathF.Cos(yawRad) * MathF.Cos(pitchRad),
+                MathF.Sin(pitchRad),
+                MathF.Sin(yawRad) * MathF.Cos(pitchRad)));
+        }
+    }
 
-    private const float MoveSpeed = 3f;
-    private const float MouseSensitivity = 0.2f;
+    /// <summary>Right vector in world space (Front × world-up, normalized).</summary>
+    public Vector3 Right => Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
+
+    /// <summary>Up vector in world space (Right × Front, normalized).</summary>
+    public Vector3 Up => Vector3.Normalize(Vector3.Cross(Right, Front));
 
     public Matrix4 GetViewMatrix()
     {
-        return Matrix4.LookAt(Position, Position + _front, _up);
+        var pos = Transform.Position;
+        return Matrix4.LookAt(pos, pos + Front, Vector3.UnitY);
     }
 
     public Matrix4 GetProjectionMatrix(float aspectRatio)
     {
         return Matrix4.CreatePerspectiveFieldOfView(
-            MathHelper.DegreesToRadians(60f),
+            MathHelper.DegreesToRadians(Fov),
             aspectRatio,
-            0.1f,
-            100f
-        );
-    }
-
-    private void UpdateVectors()
-    {
-        _front.X = MathF.Cos(MathHelper.DegreesToRadians(_yaw)) * MathF.Cos(MathHelper.DegreesToRadians(_pitch));
-        _front.Y = MathF.Sin(MathHelper.DegreesToRadians(_pitch));
-        _front.Z = MathF.Sin(MathHelper.DegreesToRadians(_yaw)) * MathF.Cos(MathHelper.DegreesToRadians(_pitch));
-
-        _front = Vector3.Normalize(_front);
-        _right = Vector3.Normalize(Vector3.Cross(_front, Vector3.UnitY));
-        _up = Vector3.Normalize(Vector3.Cross(_right, _front));
-    }
-
-    /// <summary>Per-frame update. Reads movement + mouse-look state from <paramref name="input"/>.</summary>
-    public void Update(InputManager input, float deltaTime)
-    {
-        // Movement
-        float speed = MoveSpeed * deltaTime;
-        if (input.IsKeyDown(Keys.W)) Position += _front * speed;
-        if (input.IsKeyDown(Keys.S)) Position -= _front * speed;
-        if (input.IsKeyDown(Keys.A)) Position -= _right * speed;
-        if (input.IsKeyDown(Keys.D)) Position += _right * speed;
-
-        // Mouse-look (delta is already zero on the first frame)
-        var delta = input.MouseDelta;
-        if (delta != Vector2.Zero)
-        {
-            _yaw += delta.X * MouseSensitivity;
-            _pitch -= delta.Y * MouseSensitivity;
-            _pitch = MathHelper.Clamp(_pitch, -89f, 89f);
-            UpdateVectors();
-        }
+            NearClip,
+            FarClip);
     }
 }

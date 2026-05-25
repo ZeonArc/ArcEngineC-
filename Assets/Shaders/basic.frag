@@ -5,6 +5,7 @@
 in vec3 normal;
 in vec3 fragPos;
 in vec2 uv;
+in vec4 fragPosLightSpace;
 
 out vec4 FragColor;
 
@@ -33,6 +34,10 @@ uniform sampler2D texture0;     // diffuse map (default white when absent)
 uniform sampler2D specularMap;  // specular map (default white when absent)
 uniform float shininess;
 
+// Shadow uniforms (Sprint 5b).
+uniform sampler2D shadowMap;
+uniform int dirLightCastsShadows;   // 0 / 1 -- bool as int for driver portability
+
 vec3 ApplyBlinnPhong(vec3 lightDir, vec3 lightColor, vec3 norm, vec3 viewDir,
                      vec3 diffSample, vec3 specSample)
 {
@@ -46,10 +51,51 @@ vec3 ApplyBlinnPhong(vec3 lightDir, vec3 lightColor, vec3 norm, vec3 viewDir,
     return (diffuse + specular) * lightColor;
 }
 
-vec3 CalcDirLight(DirLight L, vec3 norm, vec3 viewDir, vec3 diffSample, vec3 specSample)
+// 3x3 PCF, with slope-scaled + constant minimum bias to combat shadow acne.
+// Returns 0.0 (fully lit) ... 1.0 (fully shadowed).
+float ShadowCalculation(vec4 posLS, vec3 norm, vec3 lightDir)
+{
+    // Perspective divide (no-op for the orthographic dir-light projection but standard form).
+    vec3 projCoords = posLS.xyz / posLS.w;
+
+    // Clip-space [-1, 1] to texture-space [0, 1].
+    projCoords = projCoords * 0.5 + 0.5;
+
+    // Outside the shadow frustum's far plane: not shadowed.
+    if (projCoords.z > 1.0) return 0.0;
+
+    float currentDepth = projCoords.z;
+
+    // Slope-scaled bias: surfaces nearly parallel to the light get more bias.
+    float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.0005);
+
+    // 3x3 PCF kernel.
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / vec2(textureSize(shadowMap, 0));
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+    return shadow / 9.0;
+}
+
+vec3 CalcDirLight(DirLight L, vec3 norm, vec3 viewDir,
+                  vec3 diffSample, vec3 specSample, vec4 posLS)
 {
     vec3 lightDir = normalize(-L.direction);
-    return ApplyBlinnPhong(lightDir, L.color, norm, viewDir, diffSample, specSample);
+    vec3 contribution = ApplyBlinnPhong(lightDir, L.color, norm, viewDir, diffSample, specSample);
+
+    // Shadow factor only when the dir light's shadow map is bound + valid.
+    if (dirLightCastsShadows == 1)
+    {
+        float shadow = ShadowCalculation(posLS, norm, lightDir);
+        contribution *= (1.0 - shadow);
+    }
+    return contribution;
 }
 
 vec3 CalcPointLight(PointLight L, vec3 norm, vec3 worldPos, vec3 viewDir,
@@ -73,9 +119,10 @@ void main()
     vec3 diffSample = texture(texture0,    uv).rgb * materialColor;
     vec3 specSample = texture(specularMap, uv).rgb;
 
+    // Ambient is unaffected by shadows.
     vec3 result = ambient * diffSample;
 
-    result += CalcDirLight(dirLight, norm, viewDir, diffSample, specSample);
+    result += CalcDirLight(dirLight, norm, viewDir, diffSample, specSample, fragPosLightSpace);
 
     int n = min(numPointLights, MAX_POINT_LIGHTS);
     for (int i = 0; i < n; ++i)
