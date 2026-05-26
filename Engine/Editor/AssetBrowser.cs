@@ -4,7 +4,6 @@ using OpenTK.Mathematics;
 
 using ArcEngine.Engine.Core;
 using ArcEngine.Engine.Loaders;
-using ArcEngine.Engine.Resources;
 
 using SnVec2 = System.Numerics.Vector2;
 
@@ -165,8 +164,8 @@ public static class AssetBrowser
     {
         try
         {
-            var data = Resources.LoadModelData(path);
-            var shader = Resources.LoadShader(
+            var data = ArcEngine.Engine.Resources.Resources.LoadModelData(path);
+            var shader = ArcEngine.Engine.Resources.Resources.LoadShader(
                 "Assets/Shaders/basic.vert",
                 "Assets/Shaders/basic.frag");
 
