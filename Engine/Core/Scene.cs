@@ -37,6 +37,30 @@ public class Scene
     /// <summary>Queue a GameObject for destruction at the end of the current update tick.</summary>
     public void Remove(GameObject obj) => _pendingDestroy.Add(obj);
 
+    /// <summary>
+    /// Immediately destroy every GameObject in the scene: calls <see cref="Component.OnDestroy"/>
+    /// on every component, clears all lists. Used by the scene-switcher; differs from
+    /// <see cref="Remove"/> in that no <see cref="Update"/> tick is required.
+    ///
+    /// Iterates in REVERSE order so dependents (e.g. <c>Rigidbody</c>) destroy before the
+    /// services they depend on (e.g. <c>PhysicsWorld</c>, which is conventionally added
+    /// first in scene-builders). Matches the typical "init early, teardown late" ordering.
+    /// </summary>
+    public void Clear()
+    {
+        for (int i = _gameObjects.Count - 1; i >= 0; i--)
+        {
+            var go = _gameObjects[i];
+            // Components in reverse too, in case something inside one GameObject relies on
+            // an earlier-added component on the same object.
+            for (int c = go.Components.Count - 1; c >= 0; c--)
+                go.Components[c].OnDestroy();
+            go.Scene = null;
+        }
+        _gameObjects.Clear();
+        _pendingDestroy.Clear();
+    }
+
     public IReadOnlyList<GameObject> GetObjects() => _gameObjects;
 
     /// <summary>

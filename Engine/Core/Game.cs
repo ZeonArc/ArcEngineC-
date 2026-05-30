@@ -42,6 +42,7 @@ public class Game : GameWindow
 
         _scene = new Scene();
         _input = new InputManager();
+        _input.AttachWindow(this);
         _imgui = new ImGuiController(this);
 
         EditorState.PlayModeChanged += isPlay =>
@@ -71,7 +72,16 @@ public class Game : GameWindow
             "Assets/Shaders/basic.vert",
             "Assets/Shaders/basic.frag");
 
-        new SandboxScene().Build(_scene, shader, _input);
+        // Populate the editor's static context so the Scenes menu has everything
+        // it needs to switch between demos at runtime.
+        ArcEngine.Engine.Editor.EditorContext.Scene = _scene;
+        ArcEngine.Engine.Editor.EditorContext.SharedShader = shader;
+        ArcEngine.Engine.Editor.EditorContext.Input = _input;
+        ArcEngine.Engine.Editor.EditorContext.Renderer = _renderer;
+
+        var defaultDemo = ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.Default;
+        defaultDemo.Build(_scene, shader, _input);
+        ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.Current = defaultDemo;
     }
 
     protected override void OnUpdateFrame(FrameEventArgs args)
@@ -93,12 +103,19 @@ public class Game : GameWindow
 
             if (!EditorState.IsPlayMode)
             {
-                if (_input.WasKeyPressedThisFrame(Keys.W)) EditorState.GizmoMode = GizmoMode.Translate;
-                if (_input.WasKeyPressedThisFrame(Keys.E)) EditorState.GizmoMode = GizmoMode.Rotate;
-                if (_input.WasKeyPressedThisFrame(Keys.R)) EditorState.GizmoMode = GizmoMode.Scale;
-                if (_input.WasKeyPressedThisFrame(Keys.G))
-                    EditorState.GizmoSpace = EditorState.GizmoSpace == GizmoSpace.World
-                        ? GizmoSpace.Local : GizmoSpace.World;
+                // Don't fire gizmo hotkeys while the editor camera is engaged
+                // (RMB held; cursor grabbed). Otherwise WASD-to-move would also
+                // flip W/E/R into Translate/Rotate/Scale modes.
+                bool cameraEngaged = CursorState == CursorState.Grabbed;
+                if (!cameraEngaged)
+                {
+                    if (_input.WasKeyPressedThisFrame(Keys.W)) EditorState.GizmoMode = GizmoMode.Translate;
+                    if (_input.WasKeyPressedThisFrame(Keys.E)) EditorState.GizmoMode = GizmoMode.Rotate;
+                    if (_input.WasKeyPressedThisFrame(Keys.R)) EditorState.GizmoMode = GizmoMode.Scale;
+                    if (_input.WasKeyPressedThisFrame(Keys.G))
+                        EditorState.GizmoSpace = EditorState.GizmoSpace == GizmoSpace.World
+                            ? GizmoSpace.Local : GizmoSpace.World;
+                }
 
                 // Ctrl+S / Ctrl+O — Save / Load scene.
                 bool ctrl = io.KeyCtrl;

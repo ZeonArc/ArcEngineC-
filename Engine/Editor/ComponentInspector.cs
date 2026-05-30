@@ -30,6 +30,7 @@ public static class ComponentInspector
             case Rigidbody rb:          DrawRigidbody(rb); break;
             case BoxCollider bc:        DrawBoxCollider(bc); break;
             case SphereCollider sc:     DrawSphereCollider(sc); break;
+            case ParticleSystem psys:   DrawParticleSystem(psys); break;
             case Script:                ImGui.TextDisabled("(custom script — no fields exposed yet)"); break;
             default:                    ImGui.TextDisabled("(no editor for this component)"); break;
         }
@@ -66,15 +67,32 @@ public static class ComponentInspector
         if (mr.Material != null)
         {
             ImGui.Separator();
-            ImGui.Text("Material");
+            ImGui.Text("Material (PBR)");
 
             var col = ToSn(mr.Material.Color);
-            if (ImGui.ColorEdit3("Color", ref col))
+            if (ImGui.ColorEdit3("Base Color", ref col))
                 mr.Material.Color = ToOtk(col);
 
-            float shin = mr.Material.Shininess;
-            if (ImGui.DragFloat("Shininess", ref shin, 0.5f, 1f, 256f))
-                mr.Material.Shininess = shin;
+            float metallic = mr.Material.Metallic;
+            if (ImGui.SliderFloat("Metallic", ref metallic, 0f, 1f))
+                mr.Material.Metallic = metallic;
+
+            float roughness = mr.Material.Roughness;
+            if (ImGui.SliderFloat("Roughness", ref roughness, 0.04f, 1f))
+                mr.Material.Roughness = roughness;
+
+            float ao = mr.Material.AmbientOcclusion;
+            if (ImGui.SliderFloat("AO", ref ao, 0f, 1f))
+                mr.Material.AmbientOcclusion = ao;
+
+            float ns = mr.Material.NormalStrength;
+            if (ImGui.SliderFloat("Normal Strength", ref ns, 0f, 2f))
+                mr.Material.NormalStrength = ns;
+
+            ImGui.TextDisabled($"BaseColor map: {(mr.Material.Texture != null ? "<set>" : "<none>")}");
+            ImGui.TextDisabled($"MR map:        {(mr.Material.MetallicRoughnessTexture != null ? "<set>" : "<none>")}");
+            ImGui.TextDisabled($"Normal map:    {(mr.Material.NormalTexture != null ? "<set>" : "<none>")}");
+            ImGui.TextDisabled($"Occlusion map: {(mr.Material.OcclusionTexture != null ? "<set>" : "<none>")}");
         }
     }
 
@@ -183,6 +201,64 @@ public static class ComponentInspector
         if (ImGui.DragFloat("Radius", ref r, 0.05f, 0.001f, 1000f))
             sc.Radius = r;
         ImGui.TextDisabled("(changes after Awake won't update the live body)");
+    }
+
+    // ------------------------------------------------------------------------
+    // ParticleSystem
+    // ------------------------------------------------------------------------
+
+    private static void DrawParticleSystem(ParticleSystem ps)
+    {
+        ImGui.TextDisabled($"Alive: {ps.AliveCount} / {ps.MaxParticles}");
+        ImGui.Separator();
+
+        float emit = ps.EmissionRate;
+        if (ImGui.DragFloat("Emission Rate", ref emit, 1f, 0f, 5000f))
+            ps.EmissionRate = emit;
+
+        int max = ps.MaxParticles;
+        if (ImGui.DragInt("Max Particles", ref max, 16f, 1, 16384))
+            ps.MaxParticles = max;
+
+        float lt = ps.StartLifetime;
+        if (ImGui.DragFloat("Lifetime", ref lt, 0.05f, 0.05f, 30f))
+            ps.StartLifetime = lt;
+
+        ImGui.Separator();
+
+        float startSize = ps.StartSize;
+        if (ImGui.DragFloat("Start Size", ref startSize, 0.01f, 0.001f, 10f))
+            ps.StartSize = startSize;
+
+        float endSize = ps.EndSize;
+        if (ImGui.DragFloat("End Size", ref endSize, 0.01f, 0.001f, 10f))
+            ps.EndSize = endSize;
+
+        var startCol = new SnVec4(ps.StartColor.X, ps.StartColor.Y, ps.StartColor.Z, ps.StartColor.W);
+        if (ImGui.ColorEdit4("Start Color", ref startCol))
+            ps.StartColor = new Vector4(startCol.X, startCol.Y, startCol.Z, startCol.W);
+
+        var endCol = new SnVec4(ps.EndColor.X, ps.EndColor.Y, ps.EndColor.Z, ps.EndColor.W);
+        if (ImGui.ColorEdit4("End Color", ref endCol))
+            ps.EndColor = new Vector4(endCol.X, endCol.Y, endCol.Z, endCol.W);
+
+        ImGui.Separator();
+
+        var startVel = ToSn(ps.StartVelocity);
+        if (ImGui.DragFloat3("Start Velocity", ref startVel, 0.05f))
+            ps.StartVelocity = ToOtk(startVel);
+
+        var velRand = ToSn(ps.VelocityRandom);
+        if (ImGui.DragFloat3("Velocity Random", ref velRand, 0.05f, 0f, 100f))
+            ps.VelocityRandom = ToOtk(velRand);
+
+        var grav = ToSn(ps.Gravity);
+        if (ImGui.DragFloat3("Gravity", ref grav, 0.05f))
+            ps.Gravity = ToOtk(grav);
+
+        float damp = ps.Damping;
+        if (ImGui.SliderFloat("Damping", ref damp, 0f, 5f))
+            ps.Damping = damp;
     }
 
     // ------------------------------------------------------------------------

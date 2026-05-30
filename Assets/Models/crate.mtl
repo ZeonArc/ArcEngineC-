@@ -1,7 +1,12 @@
 # MTL for crate.obj.
-# Diffuse texture is reused from Assets/Textures/test.png to avoid duplicating asset bytes.
-# Specular map reuses the same image — visually demonstrates the spec pipeline (bright
-# parts of the texture get stronger highlights). Path is resolved relative to this .mtl.
+# OBJ/MTL pre-dates PBR — there are no canonical keys for metallic/roughness.
+# Sprint 5c uses the engine's MaterialData defaults (Metallic = 0, Roughness = 0.7,
+# AO = 1) which give a typical wood/painted surface look. Tweak via the editor's
+# Inspector → Material section, or load a glTF model that carries real PBR values.
+#
+# Diffuse texture is reused from Assets/Textures/test.png. The PBR pipeline reads
+# this as "BaseColor" (sRGB, auto-linearised on sample). The legacy map_Ks line
+# from Sprint 5a is intentionally removed — the PBR shader doesn't use it.
 
 newmtl crate
 Ka 0.2 0.2 0.2
@@ -10,4 +15,3 @@ Ks 1.0 1.0 1.0
 Ns 64.0
 d  1.0
 map_Kd ../Textures/test.png
-map_Ks ../Textures/test.png

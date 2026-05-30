@@ -1,13 +1,15 @@
 #version 330 core
 
-// Depth-only vertex shader used by the shadow pass.
-// Position attribute only; normals/UVs are irrelevant to depth.
+// Sprint 11 depth-only shadow vertex shader, always-instanced.
+// Position attribute only; the per-instance model matrix lives at locations 5-8
+// (mat4). Normal/UV/tangent are present in the VAO but unused here.
+
 layout (location = 0) in vec3 aPosition;
+layout (location = 5) in mat4 aInstanceModel;
 
 uniform mat4 lightSpaceMatrix;
-uniform mat4 model;
 
 void main()
 {
-    gl_Position = lightSpaceMatrix * model * vec4(aPosition, 1.0);
+    gl_Position = lightSpaceMatrix * aInstanceModel * vec4(aPosition, 1.0);
 }

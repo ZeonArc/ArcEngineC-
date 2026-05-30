@@ -33,6 +33,23 @@ public static class MainMenu
             ImGui.EndMenu();
         }
 
+        if (ImGui.BeginMenu("Scenes"))
+        {
+            foreach (var demo in ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.All)
+            {
+                bool isCurrent = ReferenceEquals(demo, ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.Current);
+                if (ImGui.MenuItem(demo.Name, "", isCurrent) && !isCurrent)
+                {
+                    if (EditorContext.SharedShader != null && EditorContext.Input != null && EditorContext.Renderer != null)
+                    {
+                        ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.Switch(
+                            demo, scene, EditorContext.SharedShader, EditorContext.Input, EditorContext.Renderer);
+                    }
+                }
+            }
+            ImGui.EndMenu();
+        }
+
         // Play / Stop button — right-aligned. ImGui doesn't have a built-in right-align,
         // but we can compute the position manually.
         string label = EditorState.IsPlayMode ? "[ Stop ]" : "[ Play ]";

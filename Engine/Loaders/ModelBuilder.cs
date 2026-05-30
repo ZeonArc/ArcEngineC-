@@ -9,34 +9,24 @@ namespace ArcEngine.Engine.Loaders;
 /// one empty parent GameObject with one child GameObject per submesh, each carrying a
 /// <see cref="MeshRenderer"/> component referencing its own <see cref="Mesh"/> and <see cref="Material"/>.
 ///
-/// Path-keyed texture caching is delegated to <see cref="Resources.LoadTexture"/> so duplicate
-/// diffuse / specular maps across multiple model loads share one GL texture.
+/// Texture sRGB rule: BaseColor uses sRGB upload (auto-linearized on sample); all other
+/// PBR maps (MetallicRoughness, Normal, Occlusion) use linear upload.
 /// </summary>
 public static class ModelBuilder
 {
-    /// <summary>
-    /// Build a GameObject tree from a <see cref="ModelData"/>.
-    /// </summary>
     public static GameObject Build(ModelData data, Shader shader)
     {
-        // 1) Build all materials up front.
         var materials = new Material[data.Materials.Count];
-
         for (int i = 0; i < data.Materials.Count; i++)
-        {
             materials[i] = BuildMaterial(data.Materials[i], shader);
-        }
 
-        // Fallback material in case a submesh's MaterialIndex is out of range.
         Material fallback = new Material(shader) { Color = OpenTK.Mathematics.Vector3.One };
 
-        // 2) Parent root.
         var root = new GameObject
         {
             Name = string.IsNullOrEmpty(data.SourcePath) ? "Model" : Path.GetFileName(data.SourcePath)
         };
 
-        // 3) One child per submesh, each with its own MeshRenderer.
         foreach (var sub in data.Submeshes)
         {
             var child = new GameObject { Name = sub.Name ?? "Submesh" };
@@ -58,24 +48,40 @@ public static class ModelBuilder
         var mat = new Material(shader)
         {
             Color = md.DiffuseColor,
-            Shininess = md.Shininess
+            Metallic = md.Metallic,
+            Roughness = md.Roughness,
+            AmbientOcclusion = md.AmbientOcclusion,
+            NormalStrength = md.NormalStrength,
+            Shininess = md.Shininess,                  // legacy; unused in PBR shader
         };
 
-        // Diffuse: prefer embedded bytes (GLB) over a file path (OBJ/MTL).
+        // ---- BaseColor (sRGB) ------------------------------------------------
         if (md.DiffuseMapBytes != null && md.DiffuseMapBytes.Length > 0)
-        {
-            mat.Texture = new Texture(md.DiffuseMapBytes);
-        }
+            mat.Texture = new Texture(md.DiffuseMapBytes, sRGB: true);
         else if (!string.IsNullOrEmpty(md.DiffuseMapPath))
-        {
-            mat.Texture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.DiffuseMapPath);
-        }
+            mat.Texture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.DiffuseMapPath, sRGB: true);
 
-        // Specular: file-path only (GLB's PBR channel is not currently translated into a spec map).
+        // ---- MetallicRoughness (linear) -------------------------------------
+        if (md.MetallicRoughnessMapBytes != null && md.MetallicRoughnessMapBytes.Length > 0)
+            mat.MetallicRoughnessTexture = new Texture(md.MetallicRoughnessMapBytes, sRGB: false);
+        else if (!string.IsNullOrEmpty(md.MetallicRoughnessMapPath))
+            mat.MetallicRoughnessTexture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.MetallicRoughnessMapPath, sRGB: false);
+
+        // ---- Normal (linear) ------------------------------------------------
+        if (md.NormalMapBytes != null && md.NormalMapBytes.Length > 0)
+            mat.NormalTexture = new Texture(md.NormalMapBytes, sRGB: false);
+        else if (!string.IsNullOrEmpty(md.NormalMapPath))
+            mat.NormalTexture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.NormalMapPath, sRGB: false);
+
+        // ---- Occlusion (linear) ---------------------------------------------
+        if (md.OcclusionMapBytes != null && md.OcclusionMapBytes.Length > 0)
+            mat.OcclusionTexture = new Texture(md.OcclusionMapBytes, sRGB: false);
+        else if (!string.IsNullOrEmpty(md.OcclusionMapPath))
+            mat.OcclusionTexture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.OcclusionMapPath, sRGB: false);
+
+        // ---- Legacy specular slot (Sprint 5a back-compat) -------------------
         if (!string.IsNullOrEmpty(md.SpecularMapPath))
-        {
-            mat.SpecularTexture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.SpecularMapPath);
-        }
+            mat.SpecularTexture = ArcEngine.Engine.Resources.Resources.LoadTexture(md.SpecularMapPath, sRGB: false);
 
         return mat;
     }

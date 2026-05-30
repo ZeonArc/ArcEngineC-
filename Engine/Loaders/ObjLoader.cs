@@ -51,10 +51,17 @@ public static class ObjLoader
         {
             if (idxs.Count == 0) return;
 
+            var vArr = verts.ToArray();
+            var iArr = idxs.ToArray();
+
+            // Per-submesh: compute per-vertex tangents from triangle UV gradients.
+            // This must happen before the submesh is handed off because vArr is a value-copy.
+            TangentGenerator.GenerateInPlace(vArr, iArr);
+
             data.Submeshes.Add(new MeshData
             {
-                Vertices = verts.ToArray(),
-                Indices = idxs.ToArray(),
+                Vertices = vArr,
+                Indices = iArr,
                 MaterialIndex = currentMaterialIndex,
                 Name = currentSubmeshName ?? $"submesh_{data.Submeshes.Count}"
             });

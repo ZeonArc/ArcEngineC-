@@ -19,8 +19,7 @@ namespace ArcEngine.Engine.Resources;
 /// </summary>
 public static class Resources
 {
-    private static readonly Dictionary<string, Texture> s_textures =
-        new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<(string path, bool sRGB), Texture> s_textures = new();
 
     private static readonly Dictionary<(string vert, string frag), Shader> s_shaders = new();
 
@@ -31,19 +30,25 @@ public static class Resources
     /// Load a 2D texture from disk, returning the cached instance on duplicate requests.
     /// Returns null with a logged warning if the file doesn't exist.
     /// </summary>
-    public static Texture? LoadTexture(string path)
+    /// <param name="path">Texture file path.</param>
+    /// <param name="sRGB">
+    /// True for color textures (base color / albedo) — uploaded as <c>SrgbAlpha</c>
+    /// so shader samples auto-linearize. False for data textures (normal, MR, AO).
+    /// </param>
+    public static Texture? LoadTexture(string path, bool sRGB = false)
     {
-        var key = NormalizePath(path);
+        var keyPath = NormalizePath(path);
+        var key = (keyPath, sRGB);
 
         if (s_textures.TryGetValue(key, out var cached)) return cached;
 
-        if (!File.Exists(key))
+        if (!File.Exists(keyPath))
         {
             Console.WriteLine($"[Resources] Warning: texture not found: {path}");
             return null;
         }
 
-        var tex = new Texture(key);
+        var tex = new Texture(keyPath, sRGB);
         s_textures[key] = tex;
         return tex;
     }
