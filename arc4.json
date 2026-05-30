@@ -1,12 +1,12 @@
 {
   "format": "kiro-session-export-v1",
   "metadata": {
-    "session_id": "071782e1-d598-4db4-bbed-b6522ddbfd24",
+    "session_id": "99280ee7-49be-4ca9-8e32-afb5403171cd",
     "cwd": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#",
     "created_at": "2026-05-22T10:29:24.535551500Z",
-    "updated_at": "2026-05-30T08:31:48.048253800Z",
+    "updated_at": "2026-05-30T08:42:12.318476700Z",
     "title": "go though the project and check all the phases thats been completed and the list of phases form here as well Absolutely — here’s the **complete...",
-    "imported_from": "\\\\?\\C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\arc2.json",
+    "imported_from": "\\\\?\\C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\arc3.json",
     "session_created_reason": "subagent",
     "session_state": {
       "version": "v1",
@@ -5260,13 +5260,75 @@
                 "unitPlural": "credits"
               }
             ]
+          },
+          {
+            "loop_id": {
+              "agent_id": {
+                "name": "kiro_default",
+                "parent_id": null,
+                "rand": null
+              },
+              "rand": 451569738
+            },
+            "result": {
+              "Ok": {
+                "id": "87cb706b-f78a-4caa-ac8b-1f9ab505f29d",
+                "role": "assistant",
+                "content": [
+                  {
+                    "kind": "text",
+                    "data": "README replaced — was a one-liner, now ~280 lines covering everything actually shipped.\n\n### What's in it\n- **Status table** with framework/runtime/license at a glance\n- **Highlights** broken into 5 categories (Rendering / Asset Loading / Component System / Physics / Editor / Performance) — each with concrete bullet points of what's implemented, not vague claims\n- **Quick Start** with `dotnet run` command + prerequisites\n- **Controls table** covering edit-mode RMB + WASD/QE flying, gizmo hotkeys, save/load shortcuts\n- **Sample Scenes table** describing each of the 4 demos\n- **Project Structure tree** showing the actual `Engine/` and `Assets/` layout\n- **Architecture diagram** (ASCII) showing the GameObject + Component model and the per-frame render pipeline\n- **Built With table** — every NuGet dep with its exact version + purpose\n- **Roadmap** split into ✅ Implemented / ⬜ Not implemented — honest about scope\n- **Known Limitations** — real caveats that anyone using/forking this should know (PBR ambient hack, inspector physics edits don't propagate, particle serialization gap, gizmo+hierarchy gotcha, uniform-scale assumption, glTF tangent W-component)\n- **Performance Notes** — the NVIDIA-CP / hybrid-GPU workaround you ran into\n- **File Conventions** — the non-ASCII-in-shaders gotcha so future-you doesn't re-discover it\n- **Contributing** + **License** + **Acknowledgments**\n\n### Things deliberately not included\n- **No screenshots/GIFs** — the project doesn't have any committed yet. The README has natural slots for them (under Highlights or Sample Scenes); just drop `.png` / `.gif` files into a `docs/` folder and reference with `![alt](docs/file.png)`.\n- **No build badges** — those need a CI provider configured (GitHub Actions / Azure Pipelines). When you set one up, the standard markdown is `![Build](https://github.com/USER/REPO/actions/workflows/dotnet.yml/badge.svg)` near the top.\n- **No live demo link** — desktop OpenGL app, can't be hosted.\n\n### Suggested follow-up (optional)\n1. **Drop a screenshot** somewhere obvious — even one per scene helps massively. Press the Windows key + Shift + S over the running engine, save to `docs/screenshots/`, link from the README.\n2. **Update the LICENSE.txt** — currently has placeholder `[year] [fullname]`. Replace with `2025 ZeonArc` (or your real name).\n3. **Set up GitHub Actions** for `dotnet build` on push/PR — gives you a green badge to put at the top.\n\nThe README itself should serve as-is for any GitHub viewer landing on the repo."
+                  }
+                ],
+                "meta": {
+                  "timestamp": 1780130532
+                }
+              }
+            },
+            "message_ids": [
+              "aee097f6-062e-4c25-9231-b823c93e9e94",
+              "ba923fca-65e9-4da5-9c92-2a985ec86935",
+              "d5cabffb-380d-4862-8e84-5b549325476f",
+              "eab09910-a978-4ff1-bbfd-95fcd75b5ade",
+              "35ce8bb3-263a-40ec-a7a7-a0aaf143b22c",
+              "15241052-8e73-4425-9cba-375812664e57"
+            ],
+            "total_request_count": 3,
+            "number_of_cycles": 2,
+            "builtin_tool_uses": 2,
+            "turn_duration": {
+              "secs": 151,
+              "nanos": 952541800
+            },
+            "end_reason": "UserTurnEnd",
+            "end_timestamp": "2026-05-30T08:42:12.314305800Z",
+            "input_token_count": 0,
+            "output_token_count": 0,
+            "context_usage_percentage": 90.9413,
+            "metering_usage": [
+              {
+                "value": 6.3326742129353235,
+                "unit": "credit",
+                "unitPlural": "credits"
+              },
+              {
+                "value": 4.980842092968491,
+                "unit": "credit",
+                "unitPlural": "credits"
+              },
+              {
+                "value": 6.533098142288558,
+                "unit": "credit",
+                "unitPlural": "credits"
+              }
+            ]
           }
         ],
         "user_turn_start_request": null,
         "last_request": null
       },
       "rts_model_state": {
-        "conversation_id": "071782e1-d598-4db4-bbed-b6522ddbfd24",
+        "conversation_id": "99280ee7-49be-4ca9-8e32-afb5403171cd",
         "model_info": {
           "model_name": "claude-opus-4.7",
           "description": "Experimental preview of Claude Opus 4.7 model with 1M context window",
@@ -5279,6 +5341,33 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
+                "max_tokens": {
+                  "maximum": 128000,
+                  "type": "integer",
+                  "minimum": 1024
+                },
+                "thinking": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "adaptive",
+                        "disabled"
+                      ]
+                    },
+                    "display": {
+                      "type": "string",
+                      "enum": [
+                        "summarized",
+                        "omitted"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ]
+                },
                 "output_config": {
                   "properties": {
                     "effort": {
@@ -5293,39 +5382,12 @@
                     }
                   },
                   "type": "object"
-                },
-                "thinking": {
-                  "type": "object",
-                  "required": [
-                    "type"
-                  ],
-                  "properties": {
-                    "display": {
-                      "enum": [
-                        "summarized",
-                        "omitted"
-                      ],
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "adaptive",
-                        "disabled"
-                      ]
-                    }
-                  }
-                },
-                "max_tokens": {
-                  "maximum": 128000,
-                  "minimum": 1024,
-                  "type": "integer"
                 }
               }
             }
           }
         },
-        "context_usage_percentage": 89.3778,
+        "context_usage_percentage": 90.9413,
         "additional_fields": {
           "schema": {
             "type": "object",
@@ -44967,6 +45029,240 @@
           {
             "kind": "text",
             "data": "Build clean, runtime clean.\n\n## Diagnosis + Fix\n\n**Root cause:** The frustum extraction in `Engine/Math/Frustum.cs` had a row/column convention bug since Sprint 11.\n\nThe Gribb-Hartmann formula (the standard way to extract 6 frustum planes from a view-projection matrix) assumes **column-major** matrices — that's the math + GLSL convention where `clip = M * world` for column vectors. OpenTK is **row-major**: `clip = world * M` for row vectors. For the same logical transformation, OpenTK stores the transpose of what GL/Gribb-Hartmann expect. So when the code did `vp.Row0`, it was reading what Gribb-Hartmann would have called `column 0`, producing nonsensical plane equations.\n\n**Symptom:** plane normals point in nearly-arbitrary directions, the AABB-vs-frustum test gives results that depend on view angle. Models flicker / vanish / appear when they shouldn't, depending on where the camera is looking. This is exactly \"rendering inconsistently.\"\n\n**Why it looked OK before:** the original Everything sandbox had the camera always pointed at a small cluster of objects near origin. With objects close to (0,0,0), even garbage frustum planes happened to put them on the visible side. The Models / Lighting demos place objects further from origin (5 crates spread across the X axis in Lighting), exposing the bug.\n\n**Fix:** Transpose the VP matrix before extracting rows. After `Matrix4.Transpose(vp)`, OpenTK's `.Row0` returns what Gribb-Hartmann actually wants. One added line, two-character algorithmic effect.\n\nRun it now — every model should render every frame, regardless of where you point the camera. Try the **Lighting** scene specifically since it spreads 5 crates out along X — that's where the bug was most visible. Try moving the camera around with hold-RMB and confirm none of them vanish.\n\nIf anything else still looks off (popping at frustum edges, models flickering near the screen edges), that's a different issue and I'd want to know specifically what to look for. But the core \"models render inconsistently\" symptom should be gone now."
+          }
+        ]
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "Prompt",
+      "data": {
+        "message_id": "aee097f6-062e-4c25-9231-b823c93e9e94",
+        "content": [
+          {
+            "kind": "text",
+            "data": "make a professional github readme for me to use for this project with everthing to know about this project"
+          }
+        ],
+        "meta": {
+          "timestamp": 1780130380
+        }
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "AssistantMessage",
+      "data": {
+        "message_id": "ba923fca-65e9-4da5-9c92-2a985ec86935",
+        "content": [
+          {
+            "kind": "thinking",
+            "data": {
+              "text": " I'm reviewing the actual project structure to write an accurate README—checking the entry point, engine architecture, and available sample scenes so I can ground the documentation in what's really there rather than what might be planned.\n\nNow I'm mapping out the full README structure: starting with the project overview and features, then moving through setup instructions, controls, the component system architecture, available samples, dependencies with versions, any current limitations, what's still on the roadmap, build instructions, contribution guidelines, and licensing information. Let me pull the existing README and LICENSE files to see what's already there and what needs to be written.",
+              "signature": "EtkICmUIDhABGAIqQBoFscGRG7NQYQbqrHwljNO6uemHgIKnbi/v9tB90bWok+JibYvxjI7je81HuXZaFzxYRcj8sS31dxXYA3rQEuAyD2NsYXVkZS1vcHVzLTQtNzgAQgh0aGlua2luZxIMzv3XlssnEXoX3jMvGgz7J0yD6tcusLePDzMiMGCmn5JlvB289UYZVU8O72lWKH8WyFiDgPe8qC7DIxpdGV1Mr+jKXg+r8EVqxtTJvyqhB9AJ9wtQ6rL/QKqEQBG4ivR0zF1iESlUE9r2rIeA8RIk0au7tbKCQhD2KkJdVH1DXWz1iDhsjMsQY2DegR0lEUor7LRDAuBMhAZ1/I7t5lEf5MrMDo36DEJXiaNa4ngitv8jfYlYbk/XO5Wggce2p944tD4jljPmuYVAb6mQT1AQGwEVOVf9kJpkFC1DTfXleSZDkcfOHG8TRFuCnw0LajuH4tQEMsjGy7lZVAwYIkpfgvmX4hj6uBTBhibk60a4bCoE/INznnWtMSUqt+SSMO3c128X/2T7EPj07jhyHESya9PYkjqfpoOsxZOiXg2u+srjzeUfugnPilqiFTYgHLlyUvXBlCrajLD3/QpoOTwwymmYp31l1iC85RGWZbpx+sHtyPwuGrKeFMxJyvOPrQsvIHNzjYwOl++WOH9phMMV9pz8uZtzZFxabmpbzvI6KBNim/7CNqQln4M0g4V8LRqewXm7Za4N6JQlurfa6ciH/P+IqynFzvJoF1PEdPOtQIh8n7sJ0Z6WGrPTSlOtaZA4DpXvt6A5y/+MyQonwQuR1m/qd8Mb6ycIqBe2kX1VjsLsyb/inBp/iQOwU9rRqPXUIhh8qy4ia6SMC+O3iGaihlXQgWUF76P5xaZQ+x1ttgAwDkeTBzIQPNKB3jTg7s9cQZ70OCQtb6AvSUI8wbefJQe7iwEUXiYydfzrs8dYWVmZHVi/h8fXtV6U8mcI3nGSV6CzWR8dP17msh9Id38ci/tA0Tf9OpeuPCl8ELIluREhvGtZ4MAh3J3wlC9/WnQjGgQwBFBYATp2wGtHq8TDxGKi/4LiOOQGiskIfYnHEGF+2Wf6OQSQrBz0m6/da4oiZf2MjlRqN2zFuIxCKcb3mZAtatqW/tms8kUH2NFWsLhj40XBVmcYNUsG3mC8d1bMvjXi5JZdbxhxRTpEuiUKX+93JEllnQYtwmEAG7Th5jnS/iNM0fS4H5HZq9SayE1JSMmV6PNQdjYwjzplqiK5FcY27Ub2Qxr/+VAqe69KKHO11KKlLiXZIyydhpJ5g+UvRVYUBJUim0n8eW66pTDVPMJxzKUAi+uV04h2g4HG837xAs1tlpqzkVChcS6mbzYz4K79S+fQnXEzAK8UQ+yYJ9SzG13GlpkhOeTnur+SePHYl29Qi39BVQMJhljleaCTI6W4d9sJ9gqWB8m+lzigUk7xoaxvCZWlRAp40VL1spJtZpdgKoDPqdrffZavHNJ4GAE=",
+              "redactedContent": [],
+              "modelId": "claude-opus-4.7"
+            }
+          },
+          {
+            "kind": "text",
+            "data": ""
+          },
+          {
+            "kind": "toolUse",
+            "data": {
+              "toolUseId": "tooluse_UH8rb5qJc1cmO75i2y6ymL",
+              "name": "read",
+              "input": {
+                "operations": [
+                  {
+                    "mode": "Line",
+                    "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md"
+                  },
+                  {
+                    "mode": "Line",
+                    "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\LICENSE.txt"
+                  },
+                  {
+                    "mode": "Line",
+                    "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\ArcEngineC#.csproj"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "ToolResults",
+      "data": {
+        "message_id": "d5cabffb-380d-4862-8e84-5b549325476f",
+        "content": [
+          {
+            "kind": "toolResult",
+            "data": {
+              "toolUseId": "tooluse_UH8rb5qJc1cmO75i2y6ymL",
+              "content": [
+                {
+                  "kind": "text",
+                  "data": "# ArcEngineC#"
+                },
+                {
+                  "kind": "text",
+                  "data": "MIT License\n\nCopyright (c) [year] [fullname]\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+                },
+                {
+                  "kind": "text",
+                  "data": "﻿<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net9.0</TargetFramework>\n    <RootNamespace>ArcEngineC_</RootNamespace>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <None Remove=\"Assets\\Shaders\\basic.frag\" />\n    <None Remove=\"Assets\\Shaders\\basic.vert\" />\n    <None Remove=\"Assets\\Textures\\test.png\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Content Include=\"Assets\\Shaders\\**\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n    <Content Include=\"Assets\\Textures\\test.png\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n    <Content Include=\"Assets\\Models\\**\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n  </ItemGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"OpenTK\" Version=\"4.9.4\" />\n    <PackageReference Include=\"StbImageSharp\" Version=\"2.30.15\" />\n    <PackageReference Include=\"SharpGLTF.Core\" Version=\"1.0.6\" />\n    <PackageReference Include=\"BepuPhysics\" Version=\"2.4.0\" />\n    <PackageReference Include=\"Hexa.NET.ImGui\" Version=\"2.1.10\" />\n    <PackageReference Include=\"Hexa.NET.ImGuizmo\" Version=\"2.1.10\" />\n  </ItemGroup>\n\n</Project>"
+                }
+              ],
+              "status": "success"
+            }
+          }
+        ],
+        "results": {
+          "tooluse_UH8rb5qJc1cmO75i2y6ymL": {
+            "tool": {
+              "tool_use_purpose": null,
+              "kind": {
+                "BuiltIn": {
+                  "FileRead": {
+                    "operations": [
+                      {
+                        "mode": "Line",
+                        "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md",
+                        "limit": null,
+                        "offset": null
+                      },
+                      {
+                        "mode": "Line",
+                        "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\LICENSE.txt",
+                        "limit": null,
+                        "offset": null
+                      },
+                      {
+                        "mode": "Line",
+                        "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\ArcEngineC#.csproj",
+                        "limit": null,
+                        "offset": null
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "result": {
+              "Success": {
+                "items": [
+                  {
+                    "Text": "# ArcEngineC#"
+                  },
+                  {
+                    "Text": "MIT License\n\nCopyright (c) [year] [fullname]\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE."
+                  },
+                  {
+                    "Text": "﻿<Project Sdk=\"Microsoft.NET.Sdk\">\n\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net9.0</TargetFramework>\n    <RootNamespace>ArcEngineC_</RootNamespace>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>\n  </PropertyGroup>\n\n  <ItemGroup>\n    <None Remove=\"Assets\\Shaders\\basic.frag\" />\n    <None Remove=\"Assets\\Shaders\\basic.vert\" />\n    <None Remove=\"Assets\\Textures\\test.png\" />\n  </ItemGroup>\n\n  <ItemGroup>\n    <Content Include=\"Assets\\Shaders\\**\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n    <Content Include=\"Assets\\Textures\\test.png\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n    <Content Include=\"Assets\\Models\\**\">\n      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>\n    </Content>\n  </ItemGroup>\n\n  <ItemGroup>\n    <PackageReference Include=\"OpenTK\" Version=\"4.9.4\" />\n    <PackageReference Include=\"StbImageSharp\" Version=\"2.30.15\" />\n    <PackageReference Include=\"SharpGLTF.Core\" Version=\"1.0.6\" />\n    <PackageReference Include=\"BepuPhysics\" Version=\"2.4.0\" />\n    <PackageReference Include=\"Hexa.NET.ImGui\" Version=\"2.1.10\" />\n    <PackageReference Include=\"Hexa.NET.ImGuizmo\" Version=\"2.1.10\" />\n  </ItemGroup>\n\n</Project>"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "AssistantMessage",
+      "data": {
+        "message_id": "eab09910-a978-4ff1-bbfd-95fcd75b5ade",
+        "content": [
+          {
+            "kind": "thinking",
+            "data": {
+              "text": " I'm starting to draft a professional README for the ArcEngineC# project, making sure to capture the key details like the project name with the hash symbol, and the specific versions of all the dependencies including .NET 9, OpenTK, BepuPhysics, SharpGLTF, and the Hexa.NET libraries. I'll format this as markdown with code blocks for clarity, tables where they make sense, and a mermaid diagram to visualize the component architecture.",
+              "signature": "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",
+              "redactedContent": [],
+              "modelId": "claude-opus-4.7"
+            }
+          },
+          {
+            "kind": "text",
+            "data": ""
+          },
+          {
+            "kind": "toolUse",
+            "data": {
+              "toolUseId": "tooluse_63ugoj8hhIA6X8MgIj3Avb",
+              "name": "write",
+              "input": {
+                "__tool_use_purpose": "Professional GitHub README covering everything actually implemented.",
+                "command": "create",
+                "content": "# ArcEngine\n\nA 3D game engine built from scratch in C# with OpenTK 4 — featuring a real-time PBR renderer, a Unity-style component system, BepuPhysics-driven rigid-body dynamics, an in-engine editor with translate/rotate/scale gizmos, scene save/load, and a GPU-instanced batch renderer with frustum culling.\n\n> Educational / hobby project. Not production-ready, not a Unity replacement. Built one feature at a time, designed to be readable rather than maximally optimized.\n\n---\n\n## Status\n\n| | |\n|---|---|\n| Language | C# 12 |\n| Runtime | .NET 9 |\n| Graphics | OpenGL 3.3 Core (via OpenTK 4) |\n| Physics | BepuPhysics 2 |\n| UI | Dear ImGui (Hexa.NET.ImGui binding) |\n| Platform | Windows (tested); Linux/macOS likely work — untested |\n| License | MIT |\n| Build | `dotnet build` — 0 errors, 0 warnings |\n\n---\n\n## Highlights\n\n### Rendering\n- **Physically-based shading** — Cook-Torrance BRDF (GGX NDF + Smith geometry + Schlick Fresnel)\n- **Metallic-roughness material model** with normal maps, AO maps, and combined MR maps (matches glTF convention)\n- **Soft shadow mapping** for directional lights — 3×3 PCF with slope-scaled bias, 2048² depth FBO per light\n- **Multi-light** — 1 directional + up to 4 point lights with quadratic attenuation\n- **GPU-instanced rendering** — every draw call is `glDrawElementsInstanced`; identical `(Mesh, Material)` pairs batch automatically\n- **Frustum culling** — per-mesh AABB tested against the camera frustum (and the light frustum during the shadow pass) using the positive-vertex method\n- **Linear-space pipeline** — sRGB textures auto-linearize on sample, Reinhard tonemap + 1/2.2 gamma at frag-shader output\n- **CPU-simulated billboard particle system** with additive blending and procedural soft-circle texture\n\n### Asset Loading\n- **Wavefront OBJ + MTL** (hand-written parser) — multi-submesh support, tangent generation from UV gradients, polygon fan triangulation\n- **glTF / GLB** (via SharpGLTF) — base color, MR, normal, and occlusion channels; PBR factors; embedded textures; falls back to computing tangents when not provided\n\n### Component System (Unity-style)\n- `Component` base with `Awake / Start / Update / LateUpdate / OnDestroy` lifecycle driven by `Scene.Update(dt)`\n- `Transform` hierarchy with parent / children\n- `MeshRenderer` / `Camera` / `Light` (directional + point) / `Rigidbody` / `BoxCollider` / `SphereCollider` / `ParticleSystem` / `Script`\n- `GameObject.AddComponent<T>()` / `GetComponent<T>()` / `RemoveComponent`\n- Multiple components of the same type per GameObject (Unity rules)\n\n### Physics (BepuPhysics 2.4.0)\n- Rigid bodies (dynamic + static) with box and sphere colliders\n- Fixed 60 Hz timestep with accumulator + max-steps-per-frame catchup\n- Snap-back on Stop — physics state is captured on Play, restored on Stop\n\n### In-Engine Editor (Dear ImGui)\n- **Hierarchy** — every GameObject in the scene; multi-select with Shift / Ctrl\n- **Inspector** — editable per-component (Transform / Material PBR sliders / Light / Rigidbody / Collider / ParticleSystem)\n- **3D Gizmos** (ImGuizmo) — translate / rotate / scale handles on the selected GameObject\n- **Asset Browser** — folder tree + file list of `Assets/`; right-click models to load into the scene\n- **Scene Save/Load** — JSON via `System.Text.Json`; Ctrl+S / Ctrl+O hotkeys\n- **Edit / Play modes** — F1 toggles; Play snapshots the scene state, Stop restores it\n- **Edit-mode camera** — hold right mouse button to look + WASD/QE to fly; release to interact with UI\n\n### Performance\n- Always-instanced render path — `(Mesh, Material)` batches reuse list backing arrays frame-to-frame\n- Per-shader-per-frame uniform cache — view / projection / lights set once per shader, not per batch\n- `CollectionsMarshal.AsSpan` + fixed pointer for instance-VBO upload (no per-frame array copies)\n- Path-keyed resource cache — same texture / shader / model file loads exactly once\n\n---\n\n## Quick Start\n\n### Prerequisites\n\n- **.NET 9 SDK** — [download here](https://dotnet.microsoft.com/download)\n- A GPU with **OpenGL 3.3** support (basically anything from 2010+)\n- Windows, Linux, or macOS\n\n### Build & Run\n\n```bash\ngit clone <your-fork-url> ArcEngine\ncd ArcEngine\ndotnet run --project ArcEngineC#.csproj\n```\n\nA window opens into the **Models** demo scene. Use the editor menu (top of the window) to switch scenes.\n\n### Controls\n\n| Action | Edit Mode (default) | Play Mode |\n|---|---|---|\n| Move camera | Hold **RMB** + WASD | WASD always |\n| Vertical move | Hold **RMB** + Q / E | Q / E always |\n| Look around | Hold **RMB** + mouse | Mouse always |\n| Toggle Edit / Play | F1 | F1 |\n| Gizmo: Translate | W (when not flying) | — |\n| Gizmo: Rotate | E (when not flying) | — |\n| Gizmo: Scale | R (when not flying) | — |\n| Gizmo: World ↔ Local | G (when not flying) | — |\n| Save scene | Ctrl+S | — |\n| Load scene | Ctrl+O | — |\n\nGizmo hotkeys are suppressed while the editor camera is engaged (so pressing W to fly forward doesn't also flip the gizmo to Translate).\n\n---\n\n## Sample Scenes\n\nSwitch via **Scenes** menu. Each demo focuses on a single feature so the rendering pipeline isn't taxed by everything at once.\n\n| Scene | Focus | Contents |\n|---|---|---|\n| **Models** | Asset loading & PBR | Crate (OBJ + MTL) + GLB sample on a ground plane, both spinning, lit by sun |\n| **Lighting** | PBR + shadows + multi-light | 5 crates with varying metallic + roughness (rough → mirror), sun + 2 orbiting colored point lights, soft shadows |\n| **Physics** | Rigid-body dynamics | 3×3×4 stack of falling crates on a static ground; press F1 / Play to drop |\n| **Particles** | Particle system | 3 systems running simultaneously — warm fire, blue falling sparks, purple plume; tunable from inspector |\n\n---\n\n## Project Structure\n\n```\nEngine/\n├── Core/                 — GameObject, Component base, Scene, Transform, Camera, Game (entry)\n├── Editor/               — ImGuiController, EditorUI, MainMenu, ComponentInspector, AssetBrowser, gizmo hooks\n├── Input/                — InputManager (keyboard + mouse + cursor mutation)\n├── Lighting/             — Light base, DirectionalLight (with shadow FBO), PointLight\n├── Loaders/              — ObjLoader, MtlLoader, GltfLoader, ModelBuilder, TangentGenerator\n├── Math/                 — AABB, Frustum, MathConversions (OpenTK ↔ System.Numerics)\n├── Physics/              — PhysicsWorld, Rigidbody, Collider base, BoxCollider, SphereCollider, callbacks\n├── Rendering/            — Renderer, Mesh, Material, Texture, Shader, MeshRenderer, ParticleSystem, Primitives, Vertex\n├── Resources/            — central asset cache (textures, shaders, model data)\n├── SandboxGame/\n│   ├── Scenes/           — IDemoScene + 4 demo implementations + DemoRegistry + SceneBuilders\n│   └── Scripts/          — FpsCameraController, ModelSpinner, OrbitLight\n└── Serialization/        — SceneSerializer (JSON state save/load)\n\nAssets/\n├── Models/               — cube.obj, multimesh.obj, crate.obj + crate.mtl, sample.glb\n├── Shaders/              — basic.vert/.frag (PBR), shadow_depth.vert/.frag, particles.vert/.frag\n├── Textures/             — test.png\n└── Scenes/               — JSON scene saves go here\n```\n\n---\n\n## Architecture\n\n```\nGameObject (= container of Components)\n  ├── Transform                       (auto-added; parent/children/world matrix)\n  ├── MeshRenderer                    (Mesh + Material; AABB-culled, instance-batched)\n  ├── Camera                          (Yaw / Pitch / FOV / clip)\n  ├── DirectionalLight                (with optional shadow FBO + 2048² depth tex)\n  ├── PointLight                      (with attenuation)\n  ├── Rigidbody + BoxCollider         (driven by BepuPhysics)\n  ├── ParticleSystem                  (CPU sim; billboard quads; additive)\n  └── Script (your gameplay code)     (FpsCameraController, ModelSpinner, OrbitLight, ...)\n\nScene drives Awake → Start → Update → LateUpdate → OnDestroy lifecycle\nRenderer pulls the Camera + Lights + MeshRenderers + ParticleSystems from the scene each frame\n\nRender pipeline (per frame):\n  1. Shadow depth pre-pass     (3×3 PCF, frustum-culled to LIGHT frustum)\n  2. Main lit pass             (PBR Cook-Torrance, frustum-culled, instanced batches)\n  3. Particles pass            (additive billboards, depth-write off)\n  4. ImGui + ImGuizmo overlay  (linear → sRGB tonemap + gamma at end of frag shader)\n```\n\n---\n\n## Built With\n\n| Library | Version | Purpose |\n|---|---|---|\n| [OpenTK](https://github.com/opentk/opentk) | 4.9.4 | Windowing, OpenGL, math primitives |\n| [BepuPhysics](https://github.com/bepu/bepuphysics2) | 2.4.0 | Rigid-body physics |\n| [SharpGLTF.Core](https://github.com/vpenades/SharpGLTF) | 1.0.6 | glTF / GLB loading |\n| [Hexa.NET.ImGui](https://github.com/HexaEngine/Hexa.NET.ImGui) | 2.1.10 | Dear ImGui binding for the editor |\n| [Hexa.NET.ImGuizmo](https://github.com/HexaEngine/Hexa.NET.ImGui) | 2.1.10 | 3D translate/rotate/scale gizmos |\n| [StbImageSharp](https://github.com/StbSharp/StbImageSharp) | 2.30.15 | PNG / JPEG / etc. image decoding |\n\n---\n\n## Roadmap\n\nImplemented:\n- ✅ Window + GL context + game loop + FPS camera\n- ✅ OBJ / MTL / GLTF / GLB asset loading\n- ✅ Component system with full lifecycle\n- ✅ Blinn-Phong → migrated to PBR (Cook-Torrance + metallic-roughness)\n- ✅ Soft shadow mapping (directional, 3×3 PCF)\n- ✅ Multi-light (1 directional + 4 point)\n- ✅ Rigid-body physics (BepuPhysics)\n- ✅ Resource cache (textures / shaders / model data)\n- ✅ In-engine editor (Hierarchy + Inspector + Gizmos + Asset browser)\n- ✅ Scene save / load (JSON state)\n- ✅ Play / Stop with state snapshot\n- ✅ GPU instancing + frustum culling\n- ✅ CPU-simulated particle system\n\nNot implemented (each is its own multi-week project):\n- ⬜ ECS architecture (Component System covers it for now)\n- ⬜ Capsule colliders / mesh colliders / joints / constraints\n- ⬜ Raycast wiring (`Simulation.RayCast` is available, just not exposed)\n- ⬜ Image-Based Lighting (IBL) for proper PBR ambient\n- ⬜ Cascaded shadow maps\n- ⬜ Point-light shadows (cubemap depth)\n- ⬜ Networking / multiplayer\n- ⬜ Terrain system\n- ⬜ Compute shaders\n- ⬜ Skeletal animation / skinning\n- ⬜ Audio\n\n---\n\n## Known Limitations\n\n- **PBR ambient is not real IBL** — uses a hand-tuned environment-color split (`u_envDiffuse` + `u_envSpecular = ambient * 1.5`). Metals look reasonable but don't truly reflect their environment.\n- **Inspector edits to `Rigidbody.Mass` / `Collider.Size` after Awake don't propagate to the live BepuPhysics body.** Editing them only affects components added later, not bodies already registered.\n- **`SceneSerializer` doesn't capture `ParticleSystem` state** — saving and reloading drops particle systems. Adding a per-type block to `SerializeComponent` / `ApplyComponent` would fix this in ~30 lines.\n- **`SceneSerializer` is state-only**, not structural — Save/Load matches GameObjects by Name and overlays state onto an already-built scene. Adding a model via the asset browser then saving will not persist that new GameObject across sessions.\n- **Gizmo writes world-space TRS into the local Transform** — fine for flat-hierarchy GameObjects, but parented submeshes inside loaded models would need parent-inverse math.\n- **Vertex shader assumes uniform scale** — non-uniform scale will bend normals (the inverse-transpose of the model matrix is skipped as a perf optimization).\n- **glTF tangent W-component (bitangent sign) is ignored** — most models work fine; some with mirrored UVs may show inverted normal mapping.\n\n---\n\n## Performance Notes\n\nOn a Dell G15 5530 (i5-13450HX + RTX 3050 Mobile + Intel UHD), the engine runs the demo scenes at the monitor's refresh rate. If you see lower-than-expected performance on a hybrid-GPU laptop:\n\n1. Open **NVIDIA Control Panel** → **Manage 3D Settings** → **Program Settings**\n2. Add `bin\\Debug\\net9.0\\ArcEngineC#.exe`\n3. Set **OpenGL rendering GPU** and **Power management mode** to your dedicated card\n\nOpenGL apps default to the iGPU on hybrid laptops more often than DirectX apps do. Forcing the dGPU usually 5-10×'s perf for OpenGL rendering.\n\n---\n\n## Building from Source\n\n```bash\n# Restore + build\ndotnet build\n\n# Run\ndotnet run --project ArcEngineC#.csproj\n\n# Build a self-contained release for Windows x64\ndotnet publish -c Release -r win-x64 --self-contained\n```\n\nThe `Assets/` directory must sit alongside the executable at runtime (the `.csproj` copies it automatically with `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>`).\n\n---\n\n## File Conventions\n\n- **Shaders are ASCII-only.** NVIDIA's GLSL parser rejects non-ASCII characters in source, including in comments. Don't paste em-dashes or arrows into `.vert` / `.frag` files.\n- **Model paths are relative to the working directory** (typically `bin/Debug/net9.0/`). The `Resources` cache normalizes paths via `Path.GetFullPath` so different relative spellings of the same file dedupe correctly.\n\n---\n\n## Contributing\n\nThis is primarily a personal learning project, but PRs welcome for bug fixes or completing items in the roadmap. Please match the existing code style (file-scoped namespaces, XML doc comments on public surface, expression-bodied members where they read clearly).\n\n---\n\n## License\n\n[MIT](LICENSE.txt) — do anything you want with it. No warranty.\n\n---\n\n## Acknowledgments\n\n- **[learnopengl.com](https://learnopengl.com/)** — reference for the PBR shader, shadow mapping, and many specific techniques\n- **[BepuPhysics](https://github.com/bepu/bepuphysics2)** — the cleanest pure-C# physics engine\n- **[Khronos glTF Sample Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)** — the BoxTextured.glb shipped in `Assets/Models/` came from here\n- **Gribb & Hartmann (2001)** — frustum plane extraction technique\n",
+                "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "ToolResults",
+      "data": {
+        "message_id": "35ce8bb3-263a-40ec-a7a7-a0aaf143b22c",
+        "content": [
+          {
+            "kind": "toolResult",
+            "data": {
+              "toolUseId": "tooluse_63ugoj8hhIA6X8MgIj3Avb",
+              "content": [
+                {
+                  "kind": "text",
+                  "data": "Successfully created C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md (281 lines)."
+                }
+              ],
+              "status": "success"
+            }
+          }
+        ],
+        "results": {
+          "tooluse_63ugoj8hhIA6X8MgIj3Avb": {
+            "tool": {
+              "tool_use_purpose": "Professional GitHub README covering everything actually implemented.",
+              "kind": {
+                "BuiltIn": {
+                  "FileWrite": {
+                    "command": "create",
+                    "path": "C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md",
+                    "content": "# ArcEngine\n\nA 3D game engine built from scratch in C# with OpenTK 4 — featuring a real-time PBR renderer, a Unity-style component system, BepuPhysics-driven rigid-body dynamics, an in-engine editor with translate/rotate/scale gizmos, scene save/load, and a GPU-instanced batch renderer with frustum culling.\n\n> Educational / hobby project. Not production-ready, not a Unity replacement. Built one feature at a time, designed to be readable rather than maximally optimized.\n\n---\n\n## Status\n\n| | |\n|---|---|\n| Language | C# 12 |\n| Runtime | .NET 9 |\n| Graphics | OpenGL 3.3 Core (via OpenTK 4) |\n| Physics | BepuPhysics 2 |\n| UI | Dear ImGui (Hexa.NET.ImGui binding) |\n| Platform | Windows (tested); Linux/macOS likely work — untested |\n| License | MIT |\n| Build | `dotnet build` — 0 errors, 0 warnings |\n\n---\n\n## Highlights\n\n### Rendering\n- **Physically-based shading** — Cook-Torrance BRDF (GGX NDF + Smith geometry + Schlick Fresnel)\n- **Metallic-roughness material model** with normal maps, AO maps, and combined MR maps (matches glTF convention)\n- **Soft shadow mapping** for directional lights — 3×3 PCF with slope-scaled bias, 2048² depth FBO per light\n- **Multi-light** — 1 directional + up to 4 point lights with quadratic attenuation\n- **GPU-instanced rendering** — every draw call is `glDrawElementsInstanced`; identical `(Mesh, Material)` pairs batch automatically\n- **Frustum culling** — per-mesh AABB tested against the camera frustum (and the light frustum during the shadow pass) using the positive-vertex method\n- **Linear-space pipeline** — sRGB textures auto-linearize on sample, Reinhard tonemap + 1/2.2 gamma at frag-shader output\n- **CPU-simulated billboard particle system** with additive blending and procedural soft-circle texture\n\n### Asset Loading\n- **Wavefront OBJ + MTL** (hand-written parser) — multi-submesh support, tangent generation from UV gradients, polygon fan triangulation\n- **glTF / GLB** (via SharpGLTF) — base color, MR, normal, and occlusion channels; PBR factors; embedded textures; falls back to computing tangents when not provided\n\n### Component System (Unity-style)\n- `Component` base with `Awake / Start / Update / LateUpdate / OnDestroy` lifecycle driven by `Scene.Update(dt)`\n- `Transform` hierarchy with parent / children\n- `MeshRenderer` / `Camera` / `Light` (directional + point) / `Rigidbody` / `BoxCollider` / `SphereCollider` / `ParticleSystem` / `Script`\n- `GameObject.AddComponent<T>()` / `GetComponent<T>()` / `RemoveComponent`\n- Multiple components of the same type per GameObject (Unity rules)\n\n### Physics (BepuPhysics 2.4.0)\n- Rigid bodies (dynamic + static) with box and sphere colliders\n- Fixed 60 Hz timestep with accumulator + max-steps-per-frame catchup\n- Snap-back on Stop — physics state is captured on Play, restored on Stop\n\n### In-Engine Editor (Dear ImGui)\n- **Hierarchy** — every GameObject in the scene; multi-select with Shift / Ctrl\n- **Inspector** — editable per-component (Transform / Material PBR sliders / Light / Rigidbody / Collider / ParticleSystem)\n- **3D Gizmos** (ImGuizmo) — translate / rotate / scale handles on the selected GameObject\n- **Asset Browser** — folder tree + file list of `Assets/`; right-click models to load into the scene\n- **Scene Save/Load** — JSON via `System.Text.Json`; Ctrl+S / Ctrl+O hotkeys\n- **Edit / Play modes** — F1 toggles; Play snapshots the scene state, Stop restores it\n- **Edit-mode camera** — hold right mouse button to look + WASD/QE to fly; release to interact with UI\n\n### Performance\n- Always-instanced render path — `(Mesh, Material)` batches reuse list backing arrays frame-to-frame\n- Per-shader-per-frame uniform cache — view / projection / lights set once per shader, not per batch\n- `CollectionsMarshal.AsSpan` + fixed pointer for instance-VBO upload (no per-frame array copies)\n- Path-keyed resource cache — same texture / shader / model file loads exactly once\n\n---\n\n## Quick Start\n\n### Prerequisites\n\n- **.NET 9 SDK** — [download here](https://dotnet.microsoft.com/download)\n- A GPU with **OpenGL 3.3** support (basically anything from 2010+)\n- Windows, Linux, or macOS\n\n### Build & Run\n\n```bash\ngit clone <your-fork-url> ArcEngine\ncd ArcEngine\ndotnet run --project ArcEngineC#.csproj\n```\n\nA window opens into the **Models** demo scene. Use the editor menu (top of the window) to switch scenes.\n\n### Controls\n\n| Action | Edit Mode (default) | Play Mode |\n|---|---|---|\n| Move camera | Hold **RMB** + WASD | WASD always |\n| Vertical move | Hold **RMB** + Q / E | Q / E always |\n| Look around | Hold **RMB** + mouse | Mouse always |\n| Toggle Edit / Play | F1 | F1 |\n| Gizmo: Translate | W (when not flying) | — |\n| Gizmo: Rotate | E (when not flying) | — |\n| Gizmo: Scale | R (when not flying) | — |\n| Gizmo: World ↔ Local | G (when not flying) | — |\n| Save scene | Ctrl+S | — |\n| Load scene | Ctrl+O | — |\n\nGizmo hotkeys are suppressed while the editor camera is engaged (so pressing W to fly forward doesn't also flip the gizmo to Translate).\n\n---\n\n## Sample Scenes\n\nSwitch via **Scenes** menu. Each demo focuses on a single feature so the rendering pipeline isn't taxed by everything at once.\n\n| Scene | Focus | Contents |\n|---|---|---|\n| **Models** | Asset loading & PBR | Crate (OBJ + MTL) + GLB sample on a ground plane, both spinning, lit by sun |\n| **Lighting** | PBR + shadows + multi-light | 5 crates with varying metallic + roughness (rough → mirror), sun + 2 orbiting colored point lights, soft shadows |\n| **Physics** | Rigid-body dynamics | 3×3×4 stack of falling crates on a static ground; press F1 / Play to drop |\n| **Particles** | Particle system | 3 systems running simultaneously — warm fire, blue falling sparks, purple plume; tunable from inspector |\n\n---\n\n## Project Structure\n\n```\nEngine/\n├── Core/                 — GameObject, Component base, Scene, Transform, Camera, Game (entry)\n├── Editor/               — ImGuiController, EditorUI, MainMenu, ComponentInspector, AssetBrowser, gizmo hooks\n├── Input/                — InputManager (keyboard + mouse + cursor mutation)\n├── Lighting/             — Light base, DirectionalLight (with shadow FBO), PointLight\n├── Loaders/              — ObjLoader, MtlLoader, GltfLoader, ModelBuilder, TangentGenerator\n├── Math/                 — AABB, Frustum, MathConversions (OpenTK ↔ System.Numerics)\n├── Physics/              — PhysicsWorld, Rigidbody, Collider base, BoxCollider, SphereCollider, callbacks\n├── Rendering/            — Renderer, Mesh, Material, Texture, Shader, MeshRenderer, ParticleSystem, Primitives, Vertex\n├── Resources/            — central asset cache (textures, shaders, model data)\n├── SandboxGame/\n│   ├── Scenes/           — IDemoScene + 4 demo implementations + DemoRegistry + SceneBuilders\n│   └── Scripts/          — FpsCameraController, ModelSpinner, OrbitLight\n└── Serialization/        — SceneSerializer (JSON state save/load)\n\nAssets/\n├── Models/               — cube.obj, multimesh.obj, crate.obj + crate.mtl, sample.glb\n├── Shaders/              — basic.vert/.frag (PBR), shadow_depth.vert/.frag, particles.vert/.frag\n├── Textures/             — test.png\n└── Scenes/               — JSON scene saves go here\n```\n\n---\n\n## Architecture\n\n```\nGameObject (= container of Components)\n  ├── Transform                       (auto-added; parent/children/world matrix)\n  ├── MeshRenderer                    (Mesh + Material; AABB-culled, instance-batched)\n  ├── Camera                          (Yaw / Pitch / FOV / clip)\n  ├── DirectionalLight                (with optional shadow FBO + 2048² depth tex)\n  ├── PointLight                      (with attenuation)\n  ├── Rigidbody + BoxCollider         (driven by BepuPhysics)\n  ├── ParticleSystem                  (CPU sim; billboard quads; additive)\n  └── Script (your gameplay code)     (FpsCameraController, ModelSpinner, OrbitLight, ...)\n\nScene drives Awake → Start → Update → LateUpdate → OnDestroy lifecycle\nRenderer pulls the Camera + Lights + MeshRenderers + ParticleSystems from the scene each frame\n\nRender pipeline (per frame):\n  1. Shadow depth pre-pass     (3×3 PCF, frustum-culled to LIGHT frustum)\n  2. Main lit pass             (PBR Cook-Torrance, frustum-culled, instanced batches)\n  3. Particles pass            (additive billboards, depth-write off)\n  4. ImGui + ImGuizmo overlay  (linear → sRGB tonemap + gamma at end of frag shader)\n```\n\n---\n\n## Built With\n\n| Library | Version | Purpose |\n|---|---|---|\n| [OpenTK](https://github.com/opentk/opentk) | 4.9.4 | Windowing, OpenGL, math primitives |\n| [BepuPhysics](https://github.com/bepu/bepuphysics2) | 2.4.0 | Rigid-body physics |\n| [SharpGLTF.Core](https://github.com/vpenades/SharpGLTF) | 1.0.6 | glTF / GLB loading |\n| [Hexa.NET.ImGui](https://github.com/HexaEngine/Hexa.NET.ImGui) | 2.1.10 | Dear ImGui binding for the editor |\n| [Hexa.NET.ImGuizmo](https://github.com/HexaEngine/Hexa.NET.ImGui) | 2.1.10 | 3D translate/rotate/scale gizmos |\n| [StbImageSharp](https://github.com/StbSharp/StbImageSharp) | 2.30.15 | PNG / JPEG / etc. image decoding |\n\n---\n\n## Roadmap\n\nImplemented:\n- ✅ Window + GL context + game loop + FPS camera\n- ✅ OBJ / MTL / GLTF / GLB asset loading\n- ✅ Component system with full lifecycle\n- ✅ Blinn-Phong → migrated to PBR (Cook-Torrance + metallic-roughness)\n- ✅ Soft shadow mapping (directional, 3×3 PCF)\n- ✅ Multi-light (1 directional + 4 point)\n- ✅ Rigid-body physics (BepuPhysics)\n- ✅ Resource cache (textures / shaders / model data)\n- ✅ In-engine editor (Hierarchy + Inspector + Gizmos + Asset browser)\n- ✅ Scene save / load (JSON state)\n- ✅ Play / Stop with state snapshot\n- ✅ GPU instancing + frustum culling\n- ✅ CPU-simulated particle system\n\nNot implemented (each is its own multi-week project):\n- ⬜ ECS architecture (Component System covers it for now)\n- ⬜ Capsule colliders / mesh colliders / joints / constraints\n- ⬜ Raycast wiring (`Simulation.RayCast` is available, just not exposed)\n- ⬜ Image-Based Lighting (IBL) for proper PBR ambient\n- ⬜ Cascaded shadow maps\n- ⬜ Point-light shadows (cubemap depth)\n- ⬜ Networking / multiplayer\n- ⬜ Terrain system\n- ⬜ Compute shaders\n- ⬜ Skeletal animation / skinning\n- ⬜ Audio\n\n---\n\n## Known Limitations\n\n- **PBR ambient is not real IBL** — uses a hand-tuned environment-color split (`u_envDiffuse` + `u_envSpecular = ambient * 1.5`). Metals look reasonable but don't truly reflect their environment.\n- **Inspector edits to `Rigidbody.Mass` / `Collider.Size` after Awake don't propagate to the live BepuPhysics body.** Editing them only affects components added later, not bodies already registered.\n- **`SceneSerializer` doesn't capture `ParticleSystem` state** — saving and reloading drops particle systems. Adding a per-type block to `SerializeComponent` / `ApplyComponent` would fix this in ~30 lines.\n- **`SceneSerializer` is state-only**, not structural — Save/Load matches GameObjects by Name and overlays state onto an already-built scene. Adding a model via the asset browser then saving will not persist that new GameObject across sessions.\n- **Gizmo writes world-space TRS into the local Transform** — fine for flat-hierarchy GameObjects, but parented submeshes inside loaded models would need parent-inverse math.\n- **Vertex shader assumes uniform scale** — non-uniform scale will bend normals (the inverse-transpose of the model matrix is skipped as a perf optimization).\n- **glTF tangent W-component (bitangent sign) is ignored** — most models work fine; some with mirrored UVs may show inverted normal mapping.\n\n---\n\n## Performance Notes\n\nOn a Dell G15 5530 (i5-13450HX + RTX 3050 Mobile + Intel UHD), the engine runs the demo scenes at the monitor's refresh rate. If you see lower-than-expected performance on a hybrid-GPU laptop:\n\n1. Open **NVIDIA Control Panel** → **Manage 3D Settings** → **Program Settings**\n2. Add `bin\\Debug\\net9.0\\ArcEngineC#.exe`\n3. Set **OpenGL rendering GPU** and **Power management mode** to your dedicated card\n\nOpenGL apps default to the iGPU on hybrid laptops more often than DirectX apps do. Forcing the dGPU usually 5-10×'s perf for OpenGL rendering.\n\n---\n\n## Building from Source\n\n```bash\n# Restore + build\ndotnet build\n\n# Run\ndotnet run --project ArcEngineC#.csproj\n\n# Build a self-contained release for Windows x64\ndotnet publish -c Release -r win-x64 --self-contained\n```\n\nThe `Assets/` directory must sit alongside the executable at runtime (the `.csproj` copies it automatically with `<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>`).\n\n---\n\n## File Conventions\n\n- **Shaders are ASCII-only.** NVIDIA's GLSL parser rejects non-ASCII characters in source, including in comments. Don't paste em-dashes or arrows into `.vert` / `.frag` files.\n- **Model paths are relative to the working directory** (typically `bin/Debug/net9.0/`). The `Resources` cache normalizes paths via `Path.GetFullPath` so different relative spellings of the same file dedupe correctly.\n\n---\n\n## Contributing\n\nThis is primarily a personal learning project, but PRs welcome for bug fixes or completing items in the roadmap. Please match the existing code style (file-scoped namespaces, XML doc comments on public surface, expression-bodied members where they read clearly).\n\n---\n\n## License\n\n[MIT](LICENSE.txt) — do anything you want with it. No warranty.\n\n---\n\n## Acknowledgments\n\n- **[learnopengl.com](https://learnopengl.com/)** — reference for the PBR shader, shadow mapping, and many specific techniques\n- **[BepuPhysics](https://github.com/bepu/bepuphysics2)** — the cleanest pure-C# physics engine\n- **[Khronos glTF Sample Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)** — the BoxTextured.glb shipped in `Assets/Models/` came from here\n- **Gribb & Hartmann (2001)** — frustum plane extraction technique\n"
+                  }
+                }
+              }
+            },
+            "result": {
+              "Success": {
+                "items": [
+                  {
+                    "Text": "Successfully created C:\\Users\\ZeonArc\\source\\repos\\ArcEngineC#\\README.md (281 lines)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "version": "v1",
+      "kind": "AssistantMessage",
+      "data": {
+        "message_id": "15241052-8e73-4425-9cba-375812664e57",
+        "content": [
+          {
+            "kind": "text",
+            "data": "README replaced — was a one-liner, now ~280 lines covering everything actually shipped.\n\n### What's in it\n- **Status table** with framework/runtime/license at a glance\n- **Highlights** broken into 5 categories (Rendering / Asset Loading / Component System / Physics / Editor / Performance) — each with concrete bullet points of what's implemented, not vague claims\n- **Quick Start** with `dotnet run` command + prerequisites\n- **Controls table** covering edit-mode RMB + WASD/QE flying, gizmo hotkeys, save/load shortcuts\n- **Sample Scenes table** describing each of the 4 demos\n- **Project Structure tree** showing the actual `Engine/` and `Assets/` layout\n- **Architecture diagram** (ASCII) showing the GameObject + Component model and the per-frame render pipeline\n- **Built With table** — every NuGet dep with its exact version + purpose\n- **Roadmap** split into ✅ Implemented / ⬜ Not implemented — honest about scope\n- **Known Limitations** — real caveats that anyone using/forking this should know (PBR ambient hack, inspector physics edits don't propagate, particle serialization gap, gizmo+hierarchy gotcha, uniform-scale assumption, glTF tangent W-component)\n- **Performance Notes** — the NVIDIA-CP / hybrid-GPU workaround you ran into\n- **File Conventions** — the non-ASCII-in-shaders gotcha so future-you doesn't re-discover it\n- **Contributing** + **License** + **Acknowledgments**\n\n### Things deliberately not included\n- **No screenshots/GIFs** — the project doesn't have any committed yet. The README has natural slots for them (under Highlights or Sample Scenes); just drop `.png` / `.gif` files into a `docs/` folder and reference with `![alt](docs/file.png)`.\n- **No build badges** — those need a CI provider configured (GitHub Actions / Azure Pipelines). When you set one up, the standard markdown is `![Build](https://github.com/USER/REPO/actions/workflows/dotnet.yml/badge.svg)` near the top.\n- **No live demo link** — desktop OpenGL app, can't be hosted.\n\n### Suggested follow-up (optional)\n1. **Drop a screenshot** somewhere obvious — even one per scene helps massively. Press the Windows key + Shift + S over the running engine, save to `docs/screenshots/`, link from the README.\n2. **Update the LICENSE.txt** — currently has placeholder `[year] [fullname]`. Replace with `2025 ZeonArc` (or your real name).\n3. **Set up GitHub Actions** for `dotnet build` on push/PR — gives you a green badge to put at the top.\n\nThe README itself should serve as-is for any GitHub viewer landing on the repo."
           }
         ]
       }
