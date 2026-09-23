@@ -18,6 +18,7 @@ public class Game : GameWindow
     private Scene _scene = null!;
     private InputManager _input = null!;
     private ImGuiController _imgui = null!;
+    private ArcEngine.Engine.UI.UISystem _ui = null!;
 
     /// <summary>
     /// Scene state captured the moment Play mode was entered, restored on Exit.
@@ -43,6 +44,21 @@ public class Game : GameWindow
         _scene = new Scene();
         _input = new InputManager();
         _input.AttachWindow(this);
+
+        // Open the audio device eagerly so the first AudioSource in the scene
+        // doesn't stall on the first play. Failure is non-fatal — the engine
+        // logs a warning and every AudioSource silently no-ops.
+        ArcEngine.Engine.Audio.AudioEngine.EnsureInitialized();
+
+        _ui = new ArcEngine.Engine.UI.UISystem();
+        _ui.Init();
+
+        var actions = new ArcEngine.Engine.Input.InputActions(_input);
+        actions.InstallDefaults();
+        // If the user has a custom bindings file, layer it on top of the defaults.
+        const string bindingsPath = "Assets/Config/bindings.json";
+        if (System.IO.File.Exists(bindingsPath)) actions.LoadFromFile(bindingsPath);
+
         _imgui = new ImGuiController(this);
 
         EditorState.PlayModeChanged += isPlay =>
@@ -77,6 +93,7 @@ public class Game : GameWindow
         ArcEngine.Engine.Editor.EditorContext.Scene = _scene;
         ArcEngine.Engine.Editor.EditorContext.SharedShader = shader;
         ArcEngine.Engine.Editor.EditorContext.Input = _input;
+        ArcEngine.Engine.Editor.EditorContext.Actions = actions;
         ArcEngine.Engine.Editor.EditorContext.Renderer = _renderer;
 
         var defaultDemo = ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.Default;
@@ -118,11 +135,23 @@ public class Game : GameWindow
                 }
 
                 // Ctrl+S / Ctrl+O — Save / Load scene.
+                // Ctrl+Z / Ctrl+Y — Undo / Redo (Ctrl+Shift+Z is a common redo alias too).
                 bool ctrl = io.KeyCtrl;
                 if (ctrl && _input.WasKeyPressedThisFrame(Keys.S)) MainMenu.SaveScene(_scene);
                 if (ctrl && _input.WasKeyPressedThisFrame(Keys.O)) MainMenu.LoadScene(_scene);
+                if (ctrl && _input.WasKeyPressedThisFrame(Keys.Z))
+                {
+                    if (io.KeyShift) UndoStack.Redo();
+                    else             UndoStack.Undo();
+                }
+                if (ctrl && _input.WasKeyPressedThisFrame(Keys.Y)) UndoStack.Redo();
             }
         }
+
+        // Route mouse to UI first so widgets fire this frame; also lets scripts
+        // that read UI state (e.g. slider values) act on it in Scene.Update.
+        var mousePosLogical = new OpenTK.Mathematics.Vector2(MouseState.X, MouseState.Y);
+        _ui.UpdateInput(_scene, _input, FramebufferSize, mousePosLogical, ClientSize);
 
         _scene.Update(deltaTime);
     }
@@ -133,6 +162,10 @@ public class Game : GameWindow
 
         // 1) 3D scene — use the physical framebuffer size for correct viewport on hi-DPI displays.
         _renderer.RenderScene(_scene, FramebufferSize);
+
+        // 1b) Game UI (Canvas + widgets) — draws on top of the tonemapped scene,
+        //     below the editor overlay so a running game's HUD still shows through.
+        _ui.Render(_scene, FramebufferSize);
 
         // 2) Editor UI overlay.
         // Mouse events arrive in logical (ClientSize) coords, GL renders at physical (FramebufferSize)
@@ -151,6 +184,8 @@ public class Game : GameWindow
     protected override void OnUnload()
     {
         _imgui?.Dispose();
+        _ui?.Dispose();
+        ArcEngine.Engine.Audio.AudioEngine.Shutdown();
         base.OnUnload();
     }
 }

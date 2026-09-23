@@ -40,8 +40,9 @@ public static class GltfLoader
                 var uvAccessor = prim.GetVertexAccessor("TEXCOORD_0");
                 var uvs = uvAccessor?.AsVector2Array();
 
-                // glTF TANGENT is vec4 (xyz = tangent, w = bitangent sign).
-                // We ignore W for now and keep tangent as vec3 (engine convention).
+                // glTF TANGENT is vec4 (xyz = tangent, w = bitangent sign ±1).
+                // The sign gets carried into the engine's vertex layout so mirrored-UV
+                // meshes sample the normal map with the correct handedness.
                 var tangentAccessor = prim.GetVertexAccessor("TANGENT");
                 var tangents = tangentAccessor?.AsVector4Array();
 
@@ -56,14 +57,14 @@ public static class GltfLoader
                         ? uvs[i]
                         : System.Numerics.Vector2.Zero;
                     var tg = tangents != null
-                        ? new System.Numerics.Vector3(tangents[i].X, tangents[i].Y, tangents[i].Z)
-                        : System.Numerics.Vector3.Zero;
+                        ? tangents[i]
+                        : new System.Numerics.Vector4(0f, 0f, 0f, 1f);
 
                     verts[i] = new Vertex(
                         new Vector3(p.X, p.Y, p.Z),
                         new Vector3(n.X, n.Y, n.Z),
                         new Vector2(u.X, u.Y),
-                        new Vector3(tg.X, tg.Y, tg.Z));
+                        new Vector4(tg.X, tg.Y, tg.Z, tg.W));
                 }
 
                 // Indices (glTF spec: 0-based, GL-friendly already).

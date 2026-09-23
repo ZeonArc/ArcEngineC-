@@ -43,7 +43,23 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b, ref float speculativeMargin)
-        => a.Mobility == CollidableMobility.Dynamic || b.Mobility == CollidableMobility.Dynamic;
+    {
+        // At least one side must be dynamic for a contact to matter, AND the pair
+        // has to survive the collision-matrix check (per-layer opt-outs).
+        if (a.Mobility != CollidableMobility.Dynamic && b.Mobility != CollidableMobility.Dynamic) return false;
+        if (!PhysicsLayers.CanCollide(a, b)) return false;
+
+        // Triggers: record the overlap for post-step OnTrigger dispatch, then
+        // suppress the contact so the sim doesn't push the bodies apart.
+        bool triggerA = PhysicsLayers.IsTrigger(a);
+        bool triggerB = PhysicsLayers.IsTrigger(b);
+        if (triggerA || triggerB)
+        {
+            TriggerBookkeeping.ReportOverlap(a, b);
+            return false;
+        }
+        return true;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool AllowContactGeneration(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB)

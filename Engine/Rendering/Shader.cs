@@ -12,8 +12,8 @@ public class Shader
 
     public Shader(string vertexPath, string fragmentPath)
     {
-        string vertexSource = File.ReadAllText(vertexPath);
-        string fragmentSource = File.ReadAllText(fragmentPath);
+        string vertexSource = StripNonAscii(File.ReadAllText(vertexPath));
+        string fragmentSource = StripNonAscii(File.ReadAllText(fragmentPath));
 
         int vertexShader = CompileShader(ShaderType.VertexShader, vertexSource, vertexPath);
         int fragmentShader = CompileShader(ShaderType.FragmentShader, fragmentSource, fragmentPath);
@@ -44,6 +44,30 @@ public class Shader
             var location = GL.GetUniformLocation(Handle, key);
             _uniformLocations[key] = location;
         }
+    }
+
+    /// <summary>
+    /// Replace any non-ASCII code point with '?' before compilation. Some GLSL
+    /// drivers reject multi-byte UTF-8 sequences (em-dashes, smart quotes,
+    /// non-Latin glyphs) even when they appear only inside comments and abort
+    /// with a cryptic "unexpected EOF" instead of naming the offending byte.
+    /// Doing the strip here keeps a stray typo from bringing down the whole
+    /// engine at startup.
+    /// </summary>
+    private static string StripNonAscii(string source)
+    {
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (source[i] > 127) return StripNonAsciiSlow(source);
+        }
+        return source;
+    }
+
+    private static string StripNonAsciiSlow(string source)
+    {
+        var sb = new System.Text.StringBuilder(source.Length);
+        foreach (var c in source) sb.Append(c > 127 ? '?' : c);
+        return sb.ToString();
     }
 
     private static int CompileShader(ShaderType type, string source, string path)
@@ -89,5 +113,56 @@ public class Shader
     {
         if (_uniformLocations.TryGetValue(name, out int location))
             GL.Uniform3(location, value);
+    }
+
+    public void SetVector2(string name, Vector2 value)
+    {
+        if (_uniformLocations.TryGetValue(name, out int location))
+            GL.Uniform2(location, value);
+    }
+
+    /// <summary>
+    /// Upload a contiguous array of mat4 uniforms in one call. The GLSL declaration
+    /// should be <c>uniform mat4 name[N]</c>. Cached location is looked up under
+    /// <c>name[0]</c>.
+    /// </summary>
+    public void SetMatrix4Array(string name, Matrix4[] values)
+    {
+        if (!_uniformLocations.TryGetValue(name + "[0]", out int location))
+            _uniformLocations.TryGetValue(name, out location);
+        if (location < 0) return;
+        var flat = new float[values.Length * 16];
+        for (int i = 0; i < values.Length; i++)
+        {
+            var m = values[i];
+            int b = i * 16;
+            flat[b + 0] = m.M11; flat[b + 1] = m.M12; flat[b + 2] = m.M13; flat[b + 3] = m.M14;
+            flat[b + 4] = m.M21; flat[b + 5] = m.M22; flat[b + 6] = m.M23; flat[b + 7] = m.M24;
+            flat[b + 8] = m.M31; flat[b + 9] = m.M32; flat[b + 10]= m.M33; flat[b + 11]= m.M34;
+            flat[b + 12]= m.M41; flat[b + 13]= m.M42; flat[b + 14]= m.M43; flat[b + 15]= m.M44;
+        }
+        GL.UniformMatrix4(location, values.Length, false, flat);
+    }
+
+    /// <summary>
+    /// Upload a contiguous array of vec3 uniforms in one call. The GLSL declaration
+    /// should be <c>uniform vec3 name[N]</c>. The cached location is looked up under
+    /// <c>name[0]</c> — the standard GLSL convention for array-uniform introspection.
+    /// </summary>
+    public void SetVector3Array(string name, Vector3[] values)
+    {
+        if (!_uniformLocations.TryGetValue(name + "[0]", out int location))
+            _uniformLocations.TryGetValue(name, out location);
+        if (location < 0) return;
+        // Flatten to floats — GL.Uniform3 with a location + array-length overload is
+        // easiest to feed from managed code.
+        var flat = new float[values.Length * 3];
+        for (int i = 0; i < values.Length; i++)
+        {
+            flat[i * 3 + 0] = values[i].X;
+            flat[i * 3 + 1] = values[i].Y;
+            flat[i * 3 + 2] = values[i].Z;
+        }
+        GL.Uniform3(location, values.Length, flat);
     }
 }

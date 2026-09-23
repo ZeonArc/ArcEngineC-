@@ -1,4 +1,5 @@
-﻿using ArcEngine.Engine.Loaders;
+﻿using ArcEngine.Engine.Audio;
+using ArcEngine.Engine.Loaders;
 using ArcEngine.Engine.Rendering;
 
 namespace ArcEngine.Engine.Resources;
@@ -26,6 +27,9 @@ public static class Resources
     private static readonly Dictionary<string, ModelData> s_models =
         new(StringComparer.OrdinalIgnoreCase);
 
+    private static readonly Dictionary<string, AudioClip> s_audioClips =
+        new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>
     /// Load a 2D texture from disk, returning the cached instance on duplicate requests.
     /// Returns null with a logged warning if the file doesn't exist.
@@ -50,7 +54,19 @@ public static class Resources
 
         var tex = new Texture(keyPath, sRGB);
         s_textures[key] = tex;
+        MetaRegistry.EnsureGuid(keyPath);
         return tex;
+    }
+
+    /// <summary>
+    /// Load a texture by GUID. Resolves the GUID to its current on-disk path via
+    /// <see cref="MetaRegistry"/>, then defers to <see cref="LoadTexture(string,bool)"/>.
+    /// Returns null if the GUID doesn't resolve to an existing asset.
+    /// </summary>
+    public static Texture? LoadTextureByGuid(Guid guid, bool sRGB = false)
+    {
+        var path = MetaRegistry.ResolveGuid(guid);
+        return path == null ? null : LoadTexture(path, sRGB);
     }
 
     /// <summary>
@@ -90,7 +106,59 @@ public static class Resources
         };
 
         s_models[key] = data;
+        MetaRegistry.EnsureGuid(key);
         return data;
+    }
+
+    /// <summary>
+    /// Load model data by GUID. Resolves via <see cref="MetaRegistry"/>, then defers to
+    /// <see cref="LoadModelData(string)"/>. Returns null if the GUID doesn't resolve.
+    /// </summary>
+    public static ModelData? LoadModelDataByGuid(Guid guid)
+    {
+        var path = MetaRegistry.ResolveGuid(guid);
+        return path == null ? null : LoadModelData(path);
+    }
+
+    /// <summary>
+    /// Load an audio clip. Dispatches by file extension:
+    /// <list type="bullet">
+    ///   <item><c>.wav</c> — parsed by <see cref="WavLoader"/> (uncompressed PCM).</item>
+    ///   <item><c>.ogg</c> — reserved; needs an OGG/Vorbis decoder to be wired up.</item>
+    /// </list>
+    /// Returns null with a logged warning when the file is missing or unsupported.
+    /// </summary>
+    public static AudioClip? LoadAudioClip(string path)
+    {
+        var key = NormalizePath(path);
+        if (s_audioClips.TryGetValue(key, out var cached)) return cached;
+
+        var ext = Path.GetExtension(key).ToLowerInvariant();
+        AudioClip? clip = ext switch
+        {
+            ".wav" => WavLoader.Load(key),
+            ".ogg" => LogOggUnsupported(path),
+            _ => LogAudioUnsupported(path, ext),
+        };
+
+        if (clip != null)
+        {
+            s_audioClips[key] = clip;
+            MetaRegistry.EnsureGuid(key);
+        }
+        return clip;
+    }
+
+    private static AudioClip? LogOggUnsupported(string path)
+    {
+        Console.WriteLine($"[Resources] OGG loading not yet wired up: {path}. Add an OGG/Vorbis decoder (e.g. NVorbis) to enable.");
+        return null;
+    }
+
+    private static AudioClip? LogAudioUnsupported(string path, string ext)
+    {
+        Console.WriteLine($"[Resources] Unsupported audio format '{ext}' for {path}");
+        return null;
     }
 
     /// <summary>
@@ -103,6 +171,7 @@ public static class Resources
         s_textures.Clear();
         s_shaders.Clear();
         s_models.Clear();
+        s_audioClips.Clear();
     }
 
     private static string NormalizePath(string path)

@@ -126,6 +126,16 @@ public static class AssetBrowser
                     if (ImGui.MenuItem("Load into scene"))
                         LoadModelIntoScene(scene, file);
                 }
+                else if (IsPrefab(name))
+                {
+                    if (ImGui.MenuItem("Instantiate"))
+                        InstantiatePrefab(scene, file);
+                }
+                else if (IsAudio(ext))
+                {
+                    if (ImGui.MenuItem("Play"))  PreviewAudio(file);
+                    if (ImGui.MenuItem("Stop"))  StopPreview();
+                }
                 else
                 {
                     ImGui.TextDisabled("(no actions for this type)");
@@ -149,6 +159,41 @@ public static class AssetBrowser
     // ------------------------------------------------------------------------
 
     private static bool IsModel(string ext) => ext is ".obj" or ".gltf" or ".glb";
+    private static bool IsPrefab(string file) => file.EndsWith(".prefab.json", StringComparison.OrdinalIgnoreCase);
+    private static bool IsAudio(string ext) => ext is ".wav" or ".ogg";
+
+    // Shared, headless audio source that the "preview" right-click routes through
+    // so we don't need an in-scene GameObject to hear a clip.
+    private static int s_previewSourceHandle = -1;
+
+    private static void EnsurePreviewSource()
+    {
+        if (s_previewSourceHandle != -1) return;
+        ArcEngine.Engine.Audio.AudioEngine.EnsureInitialized();
+        if (!ArcEngine.Engine.Audio.AudioEngine.IsInitialized) return;
+        s_previewSourceHandle = OpenTK.Audio.OpenAL.AL.GenSource();
+    }
+
+    private static void PreviewAudio(string path)
+    {
+        EnsurePreviewSource();
+        if (s_previewSourceHandle == -1) return;
+
+        var clip = ArcEngine.Engine.Resources.Resources.LoadAudioClip(path);
+        if (clip == null || clip.Handle == 0) return;
+
+        OpenTK.Audio.OpenAL.AL.SourceStop(s_previewSourceHandle);
+        OpenTK.Audio.OpenAL.AL.Source(s_previewSourceHandle, OpenTK.Audio.OpenAL.ALSourcei.Buffer, clip.Handle);
+        OpenTK.Audio.OpenAL.AL.Source(s_previewSourceHandle, OpenTK.Audio.OpenAL.ALSourcef.Gain, 1f);
+        OpenTK.Audio.OpenAL.AL.SourcePlay(s_previewSourceHandle);
+        Console.WriteLine($"[AssetBrowser] Preview: {path}");
+    }
+
+    private static void StopPreview()
+    {
+        if (s_previewSourceHandle == -1) return;
+        OpenTK.Audio.OpenAL.AL.SourceStop(s_previewSourceHandle);
+    }
 
     private static string IconFor(string ext) => ext switch
     {
@@ -156,9 +201,24 @@ public static class AssetBrowser
         ".png" or ".jpg" or ".jpeg" or ".bmp" or ".tga" => "[T]",
         ".vert" or ".frag" or ".glsl" => "[S]",
         ".mtl"  => "[m]",
+        ".wav" or ".ogg" => "[A]",
         ".json" => "[J]",
         _       => "[F]",
     };
+
+    private static void InstantiatePrefab(Scene scene, string path)
+    {
+        try
+        {
+            var root = ArcEngine.Engine.Serialization.Prefabs.Instantiate(path, scene);
+            if (root != null)
+                Console.WriteLine($"[AssetBrowser] Instantiated prefab: {path}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[AssetBrowser] Failed to instantiate '{path}': {ex.Message}");
+        }
+    }
 
     private static void LoadModelIntoScene(Scene scene, string path)
     {

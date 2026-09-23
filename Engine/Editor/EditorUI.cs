@@ -46,6 +46,7 @@ public static class EditorUI
         DrawHierarchy(scene);
         DrawInspector();
         AssetBrowser.Render(scene);
+        AudioMixerWindow.Render();
         DrawGizmo(camera, windowSize);
         DrawStatusBar();
     }
@@ -65,6 +66,18 @@ public static class EditorUI
 
         var flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
         if (!ImGui.Begin("Hierarchy", flags)) { ImGui.End(); return; }
+
+        if (ImGui.Button("+ Create Empty"))
+            UndoStack.Execute(new CreateGameObjectCommand(scene));
+
+        ImGui.SameLine();
+        ImGui.BeginDisabled(!UndoStack.CanUndo);
+        if (ImGui.SmallButton("Undo")) UndoStack.Undo();
+        ImGui.EndDisabled();
+        ImGui.SameLine();
+        ImGui.BeginDisabled(!UndoStack.CanRedo);
+        if (ImGui.SmallButton("Redo")) UndoStack.Redo();
+        ImGui.EndDisabled();
 
         ImGui.Text($"GameObjects ({scene.GetObjects().Count})");
         ImGui.Separator();
@@ -119,6 +132,21 @@ public static class EditorUI
         // Single-selection details.
         var target = sel[0];
         ImGui.Text(target.Name);
+        ImGui.SameLine();
+        if (ImGui.SmallButton("Save as Prefab"))
+        {
+            try
+            {
+                string safeName = string.Join("_", target.Name.Split(Path.GetInvalidFileNameChars()));
+                string prefabPath = $"Assets/Prefabs/{safeName}{ArcEngine.Engine.Serialization.Prefabs.Extension}";
+                ArcEngine.Engine.Serialization.Prefabs.Save(target, prefabPath);
+                Console.WriteLine($"[Inspector] Saved prefab → {prefabPath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Inspector] Failed to save prefab: {ex.Message}");
+            }
+        }
         ImGui.Separator();
 
         // Iterate components. Track to remove (avoid mutating during iteration).
@@ -150,7 +178,7 @@ public static class EditorUI
         }
 
         if (toRemove != null)
-            foreach (var c in toRemove) target.RemoveComponent(c);
+            foreach (var c in toRemove) UndoStack.Execute(new RemoveComponentCommand(target, c));
 
         // Add Component dropdown.
         ImGui.Separator();
@@ -160,15 +188,7 @@ public static class EditorUI
             foreach (var t in s_addableComponentTypes)
             {
                 if (ImGui.Selectable(t.Name))
-                {
-                    var addMethod = typeof(GameObject)
-                        .GetMethods()
-                        .First(m => m.Name == "AddComponent"
-                                 && m.IsGenericMethodDefinition
-                                 && m.GetParameters().Length == 0)
-                        .MakeGenericMethod(t);
-                    addMethod.Invoke(target, null);
-                }
+                    UndoStack.Execute(new AddComponentCommand(target, t));
             }
             ImGui.EndCombo();
         }

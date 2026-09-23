@@ -24,7 +24,8 @@ public static class ModelBuilder
 
         var root = new GameObject
         {
-            Name = string.IsNullOrEmpty(data.SourcePath) ? "Model" : Path.GetFileName(data.SourcePath)
+            Name = string.IsNullOrEmpty(data.SourcePath) ? "Model" : Path.GetFileName(data.SourcePath),
+            SourceModelPath = string.IsNullOrEmpty(data.SourcePath) ? null : data.SourcePath,
         };
 
         foreach (var sub in data.Submeshes)

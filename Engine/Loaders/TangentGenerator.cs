@@ -29,7 +29,7 @@ internal static class TangentGenerator
         // 1) Reset existing tangents (they're zero-initialised but be explicit
         //    in case this is called twice on the same buffer).
         for (int i = 0; i < vertices.Length; i++)
-            vertices[i].Tangent = Vector3.Zero;
+            vertices[i].Tangent = Vector4.Zero;
 
         // 2) Walk triangles, accumulate.
         for (int t = 0; t + 2 < indices.Length; t += 3)
@@ -54,26 +54,30 @@ internal static class TangentGenerator
             float inv = 1f / det;
             Vector3 tangent = inv * (dUv2.Y * e1 - dUv1.Y * e2);
 
-            v0.Tangent += tangent;
-            v1.Tangent += tangent;
-            v2.Tangent += tangent;
+            v0.Tangent += new Vector4(tangent, 0f);
+            v1.Tangent += new Vector4(tangent, 0f);
+            v2.Tangent += new Vector4(tangent, 0f);
         }
 
-        // 3) Orthonormalise against each vertex's existing normal.
+        // 3) Orthonormalise against each vertex's existing normal. Bitangent sign
+        //    defaults to +1 for generated tangents (no UV mirroring info here — the
+        //    glTF loader is the only path that preserves the true sign).
         for (int i = 0; i < vertices.Length; i++)
         {
             ref var v = ref vertices[i];
-            if (v.Tangent.LengthSquared < 1e-12f) continue;
+            var acc = v.Tangent.Xyz;
+            if (acc.LengthSquared < 1e-12f)
+            {
+                v.Tangent = new Vector4(0f, 0f, 0f, 1f);
+                continue;
+            }
 
             // Gram-Schmidt: T_orth = T - N * (N . T)
             Vector3 n = v.Normal;
-            Vector3 tg = v.Tangent;
-            tg -= n * Vector3.Dot(n, tg);
+            acc -= n * Vector3.Dot(n, acc);
 
-            if (tg.LengthSquared > 1e-12f) tg = Vector3.Normalize(tg);
-            else                            tg = Vector3.Zero;
-
-            v.Tangent = tg;
+            acc = acc.LengthSquared > 1e-12f ? Vector3.Normalize(acc) : Vector3.Zero;
+            v.Tangent = new Vector4(acc, 1f);
         }
     }
 }

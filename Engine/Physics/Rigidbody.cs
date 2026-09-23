@@ -25,6 +25,19 @@ public class Rigidbody : Component
     /// <summary>If true, the body is fixed (e.g. ground, wall) and does not move.</summary>
     public bool IsStatic = false;
 
+    /// <summary>
+    /// Collision layer (0..31) consulted by the narrowphase against the
+    /// <see cref="PhysicsLayers"/> collision matrix. Layer 0 is the default catch-all.
+    /// </summary>
+    public int Layer = 0;
+
+    /// <summary>
+    /// If true, this body still tracks overlap with other rigidbodies but does not
+    /// generate contact forces — it fires OnTriggerEnter/Stay/Exit on sibling
+    /// components instead. Standard game-engine trigger volume semantics.
+    /// </summary>
+    public bool IsTrigger = false;
+
     private PhysicsWorld? _world;
     private bool _isDynamicRegistered;
     private bool _isStaticRegistered;
@@ -59,6 +72,8 @@ public class Rigidbody : Component
         {
             _staticHandle = _world.Simulation.Statics.Add(new StaticDescription(pose, shape));
             _isStaticRegistered = true;
+            _world.RegisterStatic(_staticHandle, this);
+            PhysicsLayers.RegisterStatic(_staticHandle, Layer, IsTrigger);
         }
         else
         {
@@ -69,6 +84,8 @@ public class Rigidbody : Component
                 new BodyActivityDescription(0.01f));
             _bodyHandle = _world.Simulation.Bodies.Add(description);
             _isDynamicRegistered = true;
+            _world.RegisterBody(_bodyHandle, this);
+            PhysicsLayers.RegisterBody(_bodyHandle, Layer, IsTrigger);
         }
     }
 
@@ -86,8 +103,18 @@ public class Rigidbody : Component
     {
         if (_world == null) return;
 
-        if (_isDynamicRegistered) _world.Simulation.Bodies.Remove(_bodyHandle);
-        if (_isStaticRegistered) _world.Simulation.Statics.Remove(_staticHandle);
+        if (_isDynamicRegistered)
+        {
+            PhysicsLayers.UnregisterBody(_bodyHandle);
+            _world.UnregisterBody(_bodyHandle);
+            _world.Simulation.Bodies.Remove(_bodyHandle);
+        }
+        if (_isStaticRegistered)
+        {
+            PhysicsLayers.UnregisterStatic(_staticHandle);
+            _world.UnregisterStatic(_staticHandle);
+            _world.Simulation.Statics.Remove(_staticHandle);
+        }
 
         _isDynamicRegistered = false;
         _isStaticRegistered = false;
@@ -110,5 +137,31 @@ public class Rigidbody : Component
         bodyRef.Pose = new RigidPose(pos, orient);
         bodyRef.Velocity = new BodyVelocity(default, default);
         bodyRef.Awake = true;
+    }
+
+    /// <summary>
+    /// Re-register the underlying BepuPhysics body from the current component state.
+    /// Call this after editing <see cref="Mass"/>, <see cref="IsStatic"/>, or any field on
+    /// the sibling <see cref="Collider"/> so the live simulation reflects the new values.
+    /// Preserves the current world pose (so the object doesn't teleport to its authored
+    /// position) but resets velocity to zero — same guarantee <see cref="SyncToTransform"/>
+    /// gives for the pose alone.
+    /// </summary>
+    /// <summary>The registered dynamic body handle, or null when static / unregistered.</summary>
+    public BodyHandle? GetBodyHandle() => _isDynamicRegistered ? _bodyHandle : (BodyHandle?)null;
+
+    public void Reinitialize()
+    {
+        // Snapshot the live pose back to Transform (dynamic bodies drift away from their
+        // authored Transform every tick) so Awake's re-registration doesn't teleport.
+        if (_isDynamicRegistered && _world != null)
+        {
+            var live = _world.Simulation.Bodies[_bodyHandle].Pose;
+            Transform.Position = live.Position.ToOpenTK();
+            Transform.Rotation = MathConversions.QuaternionToEulerDegrees(live.Orientation.ToOpenTK());
+        }
+
+        OnDestroy();
+        Awake();
     }
 }

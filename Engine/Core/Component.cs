@@ -28,4 +28,12 @@ public abstract class Component
     public virtual void Update(float deltaTime) { }
     public virtual void LateUpdate(float deltaTime) { }
     public virtual void OnDestroy() { }
+
+    // Trigger callbacks — dispatched by <see cref="Physics.PhysicsWorld"/> when a
+    // sibling <see cref="Physics.Rigidbody"/> flagged as <c>IsTrigger</c> begins,
+    // continues, or ends broadphase overlap with another rigidbody. The parameter
+    // is the OTHER rigidbody in the pair.
+    public virtual void OnTriggerEnter(Physics.Rigidbody other) { }
+    public virtual void OnTriggerStay (Physics.Rigidbody other) { }
+    public virtual void OnTriggerExit (Physics.Rigidbody other) { }
 }

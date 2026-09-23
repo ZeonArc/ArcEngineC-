@@ -113,7 +113,7 @@ public class Mesh : IDisposable
     /// <summary>Indexed-path layout: pos / normal / uv / tangent at locations 0, 2, 3, 4.</summary>
     private static void SetupIndexedAttributes()
     {
-        const int stride = Vertex.SizeInBytes; // 44
+        const int stride = Vertex.SizeInBytes; // 48 (12 floats)
 
         GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, stride, 0);
         GL.EnableVertexAttribArray(0);
@@ -124,7 +124,8 @@ public class Mesh : IDisposable
         GL.VertexAttribPointer(3, 2, VertexAttribPointerType.Float, false, stride, 6 * sizeof(float));
         GL.EnableVertexAttribArray(3);
 
-        GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, stride, 8 * sizeof(float));
+        // Tangent is vec4 (xyz + bitangent sign in w) per glTF convention.
+        GL.VertexAttribPointer(4, 4, VertexAttribPointerType.Float, false, stride, 8 * sizeof(float));
         GL.EnableVertexAttribArray(4);
     }
 

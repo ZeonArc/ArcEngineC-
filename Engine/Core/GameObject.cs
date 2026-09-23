@@ -8,6 +8,14 @@ public class GameObject
 {
     public string Name = "GameObject";
 
+    /// <summary>
+    /// If set, the entire subtree rooted at this GameObject was built from a model file
+    /// (.obj/.gltf/.glb). The scene serializer treats this GameObject as opaque — on load
+    /// it rebuilds the subtree by re-running the model loader instead of walking the
+    /// serialized children. Only per-root Transform + top-level component overrides survive.
+    /// </summary>
+    public string? SourceModelPath;
+
     /// <summary>The mandatory Transform component. Set in the constructor.</summary>
     public Transform Transform { get; }
 

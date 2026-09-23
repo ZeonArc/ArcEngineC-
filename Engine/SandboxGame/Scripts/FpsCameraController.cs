@@ -74,14 +74,25 @@ public class FpsCameraController : Script
 
         if (!cameraActive) return;
 
-        // Movement.
+        // Movement — via rebindable action layer where available; fall back to raw keys
+        // (WASD/EQ) if no InputActions instance is wired up (e.g., a headless scene).
+        var actions = EditorContext.Actions;
         float speed = MoveSpeed * deltaTime;
-        if (Input.IsKeyDown(Keys.W)) Transform.Position += _camera.Front * speed;
-        if (Input.IsKeyDown(Keys.S)) Transform.Position -= _camera.Front * speed;
-        if (Input.IsKeyDown(Keys.A)) Transform.Position -= _camera.Right * speed;
-        if (Input.IsKeyDown(Keys.D)) Transform.Position += _camera.Right * speed;
-        if (Input.IsKeyDown(Keys.E)) Transform.Position += Vector3.UnitY * speed;
-        if (Input.IsKeyDown(Keys.Q)) Transform.Position -= Vector3.UnitY * speed;
+        if (actions != null)
+        {
+            Transform.Position += _camera.Front * (actions.GetAxis("MoveForward", "MoveBackward") * speed);
+            Transform.Position += _camera.Right * (actions.GetAxis("MoveRight",   "MoveLeft")     * speed);
+            Transform.Position += Vector3.UnitY  * (actions.GetAxis("MoveUp",     "MoveDown")     * speed);
+        }
+        else
+        {
+            if (Input.IsKeyDown(Keys.W)) Transform.Position += _camera.Front * speed;
+            if (Input.IsKeyDown(Keys.S)) Transform.Position -= _camera.Front * speed;
+            if (Input.IsKeyDown(Keys.A)) Transform.Position -= _camera.Right * speed;
+            if (Input.IsKeyDown(Keys.D)) Transform.Position += _camera.Right * speed;
+            if (Input.IsKeyDown(Keys.E)) Transform.Position += Vector3.UnitY * speed;
+            if (Input.IsKeyDown(Keys.Q)) Transform.Position -= Vector3.UnitY * speed;
+        }
 
         // Mouse-look.
         var delta = Input.MouseDelta;

@@ -13,5 +13,6 @@ public static class EditorContext
     public static Scene? Scene;
     public static Shader? SharedShader;
     public static InputManager? Input;
+    public static InputActions? Actions;
     public static Renderer? Renderer;
 }

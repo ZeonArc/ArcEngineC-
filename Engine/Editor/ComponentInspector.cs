@@ -2,6 +2,7 @@
 
 using OpenTK.Mathematics;
 
+using ArcEngine.Engine.Audio;
 using ArcEngine.Engine.Core;
 using ArcEngine.Engine.Lighting;
 using ArcEngine.Engine.Physics;
@@ -30,7 +31,10 @@ public static class ComponentInspector
             case Rigidbody rb:          DrawRigidbody(rb); break;
             case BoxCollider bc:        DrawBoxCollider(bc); break;
             case SphereCollider sc:     DrawSphereCollider(sc); break;
+            case CapsuleCollider cc:    DrawCapsuleCollider(cc); break;
             case ParticleSystem psys:   DrawParticleSystem(psys); break;
+            case AudioSource asrc:      DrawAudioSource(asrc); break;
+            case AudioListener alis:    DrawAudioListener(alis); break;
             case Script:                ImGui.TextDisabled("(custom script — no fields exposed yet)"); break;
             default:                    ImGui.TextDisabled("(no editor for this component)"); break;
         }
@@ -40,19 +44,62 @@ public static class ComponentInspector
     // Transform
     // ------------------------------------------------------------------------
 
+    // Per-field "value before this drag started" caches. Populated on ItemActivated so
+    // we can compare against the value on ItemDeactivatedAfterEdit and push one undo
+    // entry per committed edit (not one per drag frame).
+    private static Vector3 s_dragStartPosition, s_dragStartRotation, s_dragStartScale;
+    private static Transform? s_dragTargetTransform;
+
     private static void DrawTransform(Transform t)
     {
         var pos = ToSn(t.Position);
         if (ImGui.DragFloat3("Position", ref pos, 0.05f))
             t.Position = ToOtk(pos);
+        HandleTransformDragUndo(t, SetTransformCommand.TransformField.Position, ref s_dragStartPosition);
 
         var rot = ToSn(t.Rotation);
         if (ImGui.DragFloat3("Rotation", ref rot, 1.0f))
             t.Rotation = ToOtk(rot);
+        HandleTransformDragUndo(t, SetTransformCommand.TransformField.Rotation, ref s_dragStartRotation);
 
         var scl = ToSn(t.Scale);
         if (ImGui.DragFloat3("Scale", ref scl, 0.05f, 0.001f, 1000f))
             t.Scale = ToOtk(scl);
+        HandleTransformDragUndo(t, SetTransformCommand.TransformField.Scale, ref s_dragStartScale);
+    }
+
+    /// <summary>
+    /// Push a single <see cref="SetTransformCommand"/> when a Transform drag commits.
+    /// Assumes it's called immediately after the DragFloat3 widget that edited the
+    /// corresponding field.
+    /// </summary>
+    private static void HandleTransformDragUndo(Transform t, SetTransformCommand.TransformField field, ref Vector3 dragStart)
+    {
+        if (ImGui.IsItemActivated())
+        {
+            s_dragTargetTransform = t;
+            dragStart = field switch
+            {
+                SetTransformCommand.TransformField.Position => t.Position,
+                SetTransformCommand.TransformField.Rotation => t.Rotation,
+                SetTransformCommand.TransformField.Scale    => t.Scale,
+                _ => Vector3.Zero,
+            };
+        }
+
+        if (ImGui.IsItemDeactivatedAfterEdit() && s_dragTargetTransform == t)
+        {
+            Vector3 after = field switch
+            {
+                SetTransformCommand.TransformField.Position => t.Position,
+                SetTransformCommand.TransformField.Rotation => t.Rotation,
+                SetTransformCommand.TransformField.Scale    => t.Scale,
+                _ => Vector3.Zero,
+            };
+            if (after != dragStart)
+                UndoStack.Push(new SetTransformCommand(t, field, dragStart, after));
+            s_dragTargetTransform = null;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -168,6 +215,18 @@ public static class ComponentInspector
         if (ImGui.DragFloat("Linear",    ref lin, 0.01f, 0f, 10f)) pl.Linear = lin;
         float quad = pl.Quadratic;
         if (ImGui.DragFloat("Quadratic", ref quad, 0.001f, 0f, 10f)) pl.Quadratic = quad;
+
+        ImGui.Separator();
+        bool castsShadows = pl.CastsShadows;
+        if (ImGui.Checkbox("Casts Shadows", ref castsShadows))
+            pl.CastsShadows = castsShadows;
+
+        if (castsShadows)
+        {
+            float far = pl.ShadowFarPlane;
+            if (ImGui.DragFloat("Shadow Far Plane", ref far, 0.5f, 1f, 500f))
+                pl.ShadowFarPlane = far;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -178,29 +237,69 @@ public static class ComponentInspector
     {
         float mass = rb.Mass;
         if (ImGui.DragFloat("Mass", ref mass, 0.1f, 0.001f, 10000f))
+        {
             rb.Mass = mass;
+            rb.Reinitialize();
+        }
 
         bool isStatic = rb.IsStatic;
         if (ImGui.Checkbox("Static", ref isStatic))
+        {
             rb.IsStatic = isStatic;
+            rb.Reinitialize();
+        }
 
-        ImGui.TextDisabled("(changes after Awake won't update the live body)");
+        int layer = rb.Layer;
+        if (ImGui.DragInt("Layer", ref layer, 0.1f, 0, ArcEngine.Engine.Physics.PhysicsLayers.LayerCount - 1))
+        {
+            rb.Layer = layer;
+            rb.Reinitialize();
+        }
+
+        bool isTrigger = rb.IsTrigger;
+        if (ImGui.Checkbox("Is Trigger", ref isTrigger))
+        {
+            rb.IsTrigger = isTrigger;
+            rb.Reinitialize();
+        }
     }
 
     private static void DrawBoxCollider(BoxCollider bc)
     {
         var size = ToSn(bc.Size);
         if (ImGui.DragFloat3("Size", ref size, 0.05f, 0.001f, 1000f))
+        {
             bc.Size = ToOtk(size);
-        ImGui.TextDisabled("(changes after Awake won't update the live body)");
+            bc.GameObject.GetComponent<Rigidbody>()?.Reinitialize();
+        }
     }
 
     private static void DrawSphereCollider(SphereCollider sc)
     {
         float r = sc.Radius;
         if (ImGui.DragFloat("Radius", ref r, 0.05f, 0.001f, 1000f))
+        {
             sc.Radius = r;
-        ImGui.TextDisabled("(changes after Awake won't update the live body)");
+            sc.GameObject.GetComponent<Rigidbody>()?.Reinitialize();
+        }
+    }
+
+    private static void DrawCapsuleCollider(CapsuleCollider cc)
+    {
+        float r = cc.Radius;
+        if (ImGui.DragFloat("Radius", ref r, 0.05f, 0.001f, 1000f))
+        {
+            cc.Radius = r;
+            cc.GameObject.GetComponent<Rigidbody>()?.Reinitialize();
+        }
+
+        float len = cc.Length;
+        if (ImGui.DragFloat("Length", ref len, 0.05f, 0.001f, 1000f))
+        {
+            cc.Length = len;
+            cc.GameObject.GetComponent<Rigidbody>()?.Reinitialize();
+        }
+        ImGui.TextDisabled($"(total height ≈ {cc.Length + 2f * cc.Radius:F2})");
     }
 
     // ------------------------------------------------------------------------
@@ -259,6 +358,50 @@ public static class ComponentInspector
         float damp = ps.Damping;
         if (ImGui.SliderFloat("Damping", ref damp, 0f, 5f))
             ps.Damping = damp;
+    }
+
+    // ------------------------------------------------------------------------
+    // Audio
+    // ------------------------------------------------------------------------
+
+    private static void DrawAudioSource(AudioSource src)
+    {
+        ImGui.TextDisabled(src.Clip != null
+            ? $"Clip: {System.IO.Path.GetFileName(src.Clip.SourcePath ?? "(embedded)")}   {src.Clip.Duration:F2}s"
+            : "Clip: <none>");
+        ImGui.TextDisabled($"Playing: {(src.IsPlaying ? "yes" : "no")}");
+
+        float v = src.Volume;
+        if (ImGui.SliderFloat("Volume", ref v, 0f, 1f)) src.Volume = v;
+
+        float p = src.Pitch;
+        if (ImGui.SliderFloat("Pitch", ref p, 0.1f, 3f)) src.Pitch = p;
+
+        bool loop = src.Loop;
+        if (ImGui.Checkbox("Loop", ref loop)) src.Loop = loop;
+
+        bool poa = src.PlayOnAwake;
+        if (ImGui.Checkbox("Play On Awake", ref poa)) src.PlayOnAwake = poa;
+
+        float refD = src.ReferenceDistance;
+        if (ImGui.DragFloat("Reference Distance", ref refD, 0.05f, 0.01f, 100f)) src.ReferenceDistance = refD;
+
+        float maxD = src.MaxDistance;
+        if (ImGui.DragFloat("Max Distance", ref maxD, 0.1f, 0.01f, 1000f)) src.MaxDistance = maxD;
+
+        ImGui.TextDisabled($"Bus: {src.BusName}");
+
+        if (ImGui.Button("Play"))  src.Play();
+        ImGui.SameLine();
+        if (ImGui.Button("Stop"))  src.Stop();
+        ImGui.SameLine();
+        if (ImGui.Button("Pause")) src.Pause();
+    }
+
+    private static void DrawAudioListener(AudioListener lis)
+    {
+        float g = lis.MasterGain;
+        if (ImGui.SliderFloat("Master Gain", ref g, 0f, 1f)) lis.MasterGain = g;
     }
 
     // ------------------------------------------------------------------------

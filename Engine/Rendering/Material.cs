@@ -60,7 +60,7 @@ public class Material
         Shader = shader;
     }
 
-    public void Apply()
+    public virtual void Apply()
     {
         Shader.Use();
 
@@ -91,7 +91,7 @@ public class Material
         Shader.SetInt("specularMap", 1);
     }
 
-    private void BindOrFallback(int unit, Texture? tex, string samplerName)
+    protected void BindOrFallback(int unit, Texture? tex, string samplerName)
     {
         GL.ActiveTexture(TextureUnit.Texture0 + unit);
         if (tex != null) tex.Use();

@@ -51,6 +51,7 @@ public static class SceneBuilders
         var go = new GameObject { Name = "Ground (visual)" };
         var mr = go.AddComponent<MeshRenderer>();
         mr.Mesh = Primitives.CreatePlane(size, uvTiling);
+        mr.MeshSource = Primitives.PlaneMeshSource(size, uvTiling);
         mr.Material = new Material(shader)
         {
             Color = new Vector3(0.45f, 0.45f, 0.5f),

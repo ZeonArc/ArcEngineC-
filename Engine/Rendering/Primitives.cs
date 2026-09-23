@@ -13,6 +13,10 @@ public static class Primitives
     /// </summary>
     /// <param name="size">Edge length of the square plane.</param>
     /// <param name="uvTiling">UV repeat count across the plane (e.g. 4 = texture tiles 4×4).</param>
+    /// <summary>Reconstruction hint tag written by the scene serializer for a plane mesh.</summary>
+    public static string PlaneMeshSource(float size, float uvTiling) =>
+        $"primitive:plane:size={size.ToString(System.Globalization.CultureInfo.InvariantCulture)}:uv={uvTiling.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
     public static Mesh CreatePlane(float size, float uvTiling = 1f)
     {
         float h = size * 0.5f;

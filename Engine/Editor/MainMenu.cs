@@ -33,6 +33,14 @@ public static class MainMenu
             ImGui.EndMenu();
         }
 
+        if (ImGui.BeginMenu("Window"))
+        {
+            bool mixerOpen = AudioMixerWindow.IsOpen;
+            if (ImGui.MenuItem("Audio Mixer", "", mixerOpen))
+                AudioMixerWindow.IsOpen = !mixerOpen;
+            ImGui.EndMenu();
+        }
+
         if (ImGui.BeginMenu("Scenes"))
         {
             foreach (var demo in ArcEngine.Engine.SandboxGame.Scenes.DemoRegistry.All)
